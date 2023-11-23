@@ -102,7 +102,7 @@ public class DatabaseConn {
             results = rsToList(rs);
             rs.close();
         } catch (Exception ex) {
-            ex.printStackTrace();
+            throw new RuntimeException(ex);
         }
         return results;
     }
