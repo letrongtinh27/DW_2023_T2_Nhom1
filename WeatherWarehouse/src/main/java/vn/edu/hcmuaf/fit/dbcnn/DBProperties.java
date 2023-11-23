@@ -4,13 +4,13 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class DBProperties {
-    private static Properties properties = new Properties();
+    private static final Properties properties = new Properties();
 
     static {
         try{
             properties.load(DBProperties.class.getClassLoader().getResourceAsStream("db.properties"));
         }catch (IOException ioException){
-            ioException.printStackTrace();
+            throw new RuntimeException(ioException);
         }
     }
 
