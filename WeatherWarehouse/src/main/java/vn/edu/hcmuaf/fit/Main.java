@@ -14,7 +14,8 @@ public class Main {
 //            System.out.println(cnn.query("select * from configs"));
 
 //            new Transform().start();
-            new Load().loadStagingToWarehouse();
+//            new Load().loadStagingToWarehouse();
+            new Load().loadWarehouseToAggregate();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

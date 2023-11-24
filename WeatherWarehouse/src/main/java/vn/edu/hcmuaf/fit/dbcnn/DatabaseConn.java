@@ -91,7 +91,6 @@ public class DatabaseConn {
             throw new RuntimeException(e);
         }
     }
-
     public List<Map<String, Object>> query(String sql) throws SQLException {
         ResultSet rs = null;
         List<Map<String, Object>> results = new ArrayList<>();
@@ -108,7 +107,6 @@ public class DatabaseConn {
         }
         return results;
     }
-
     public static List<Map<String, Object>> rsToList(ResultSet rs)
             throws SQLException {
         ResultSetMetaData md = rs.getMetaData();
@@ -123,7 +121,6 @@ public class DatabaseConn {
         }
         return results;
     }
-
     public String readQueryFromFile(String filePath, String query) {
         StringBuilder queryBuilder = new StringBuilder();
         boolean isInsideDesiredQuery = false;
@@ -135,7 +132,6 @@ public class DatabaseConn {
                 }
                 if(isInsideDesiredQuery) {
                     queryBuilder.append(line).append("\n");
-
                     if(line.trim().endsWith(";")) {
                         isInsideDesiredQuery = false;
                         break;
@@ -149,12 +145,11 @@ public class DatabaseConn {
     }
     public void updateStatusConfig(String status, String id) throws SQLException {
         String sql = this.readQueryFromFile("document/update_query.sql", "-- #QUERY_UPDATE_CONFIG_STATUS");
-        PreparedStatement ps = this.getStagingConn().prepareStatement(sql);
+        PreparedStatement ps = this.getControlConn().prepareStatement(sql);
         ps.setString(1, status);
         ps.setString(2, id);
         ps.executeUpdate();
     }
-
     public void updateLog(String id, String status, String note, String updated_by) throws SQLException {
         String sql = this.readQueryFromFile("document/update_query.sql", "-- #QUERY_UPDATE_LOGS");
         Connection staging = this.getStagingConn();
