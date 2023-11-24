@@ -40,7 +40,8 @@ SET
     wd.pressure = st_data.pressure,
     wd.wind = st_data.wind,
     wd.sunrise = st_data.sunrise,
-    wd.sunset = st_data.sunset
+    wd.sunset = st_data.sunset,
+    wd.status_id = st_data.status_id  -- Thêm cập nhật status_id
 WHERE
     wd.id IS NOT NULL;
 
