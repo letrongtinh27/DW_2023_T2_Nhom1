@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS `staging` (
   `sunrise` time DEFAULT NULL,
   `sunset` time DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=632 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- Data exporting was unselected.
 
@@ -141,6 +141,10 @@ CREATE TABLE IF NOT EXISTS `weather_data` (
   `location_id` int(11) DEFAULT NULL,
   `date_id` int(11) DEFAULT NULL,
   `status_id` int(11) DEFAULT NULL,
+  `low` int(11) DEFAULT NULL,
+  `high` int(11) DEFAULT NULL,
+  `humidity` int(11) DEFAULT NULL,
+  `precipitation` float DEFAULT NULL,
   `average_temp` float DEFAULT NULL,
   `day` int(11) DEFAULT NULL,
   `night` int(11) DEFAULT NULL,
@@ -150,7 +154,7 @@ CREATE TABLE IF NOT EXISTS `weather_data` (
   `wind` float DEFAULT NULL,
   `sunrise` time DEFAULT NULL,
   `sunset` time DEFAULT NULL,
-  `effective_date` date DEFAULT NULL,
+  `effective_date` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `location_id` (`location_id`),
   KEY `date_id` (`date_id`),
@@ -158,7 +162,7 @@ CREATE TABLE IF NOT EXISTS `weather_data` (
   CONSTRAINT `weather_data_ibfk_1` FOREIGN KEY (`location_id`) REFERENCES `location_dim` (`id`),
   CONSTRAINT `weather_data_ibfk_2` FOREIGN KEY (`date_id`) REFERENCES `date_dim` (`id`),
   CONSTRAINT `weather_data_ibfk_3` FOREIGN KEY (`status_id`) REFERENCES `weather_dim` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=512 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- Data exporting was unselected.
 
@@ -172,7 +176,7 @@ CREATE TABLE IF NOT EXISTS `weather_dim` (
   `is_current` tinyint(1) DEFAULT NULL,
   `previous_status_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- Data exporting was unselected.
 
