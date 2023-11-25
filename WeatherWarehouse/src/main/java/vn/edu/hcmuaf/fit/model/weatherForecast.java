@@ -1,4 +1,4 @@
-package vn.edu.hcmuaf.fit.etl;
+package vn.edu.hcmuaf.fit.model;
 
 import lombok.*;
 
