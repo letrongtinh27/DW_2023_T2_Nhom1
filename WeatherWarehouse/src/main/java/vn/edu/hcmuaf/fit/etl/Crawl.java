@@ -5,7 +5,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -16,18 +21,78 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import vn.edu.hcmuaf.fit.dbcnn.DatabaseConn;
 import vn.edu.hcmuaf.fit.model.weatherForecast;
 
 public class Crawl {
-    static String url = "https://thoitiet.edu.vn/";
+    static String url = "";
+    static String location = "";
+    static String format ="";
+    static String[] fieldNames = null;
+
     static String[] provinces = { "an-giang", "ba-ria-vung-tau", "bac-lieu", "bac-kan", "bac-giang", "bac-ninh", "ben-tre", "binh-duong", "binh-dinh", "binh-phuoc", "binh-thuan", "ca-mau", "cao-bang", "can-tho", "da-nang", "dak-lak", "dak-nong", "dien-bien", "dong-nai", "dong-thap", "gia-lai", "ha-giang", "ha-nam", "ha-noi", "ha-tinh", "hai-duong", "hai-phong", "hoa-binh", "ho-chi-minh", "hau-giang", "hung-yen", "khanh-hoa", "kien-giang", "kon-tum", "lai-chau", "lao-cai", "lang-son", "lam-dong", "long-an", "nam-dinh", "nghe-an", "ninh-binh", "ninh-thuan", "phu-tho", "phu-yen", "quang-binh", "quang-nam", "quang-ngai", "quang-ninh", "quang-tri", "soc-trang", "son-la", "tay-ninh", "thai-binh", "thai-nguyen", "thanh-hoa", "thua-thien-hue", "tien-giang", "tra-vinh", "tuyen-quang", "vinh-long", "vinh-phuc", "yen-bai"};
     static String fday = "/5-ngay-toi";
 
+    public void crawlData() throws IOException, SQLException {
+        LocalDate currentDate = LocalDate.now();
+
+        DatabaseConn connection = new DatabaseConn();
+        connection.connectToControl();
+
+        Connection control = connection.getControlConn();
+
+        // K kết nối được thì gửi mail
+        if(control == null) {
+//                    SendMail.sendEmail("","" ,"" );
+        }
+
+        String getConfig = connection.readQueryFromFile("document/update_query.sql", "-- #QUERY_SELECT_CONFIG");
+        // Lấy dữ liệu config có flag = 1 và status = repair
+        getConfig = getConfig.replace("?", "'REPAIRED'");
+
+
+
+        List<Map<String, Object>> listConfig = connection.query(getConfig);
+        // Chạy từng dòng config
+        for (Map<String, Object> config : listConfig) {
+            url = config.get("source_path").toString();
+            location = config.get("location").toString();
+            format = config.get("format").toString();
+
+            File file = new File(location + currentDate +  format);
+            if (file.exists()) {
+                file.delete();
+            }
+
+            String field_name = config.get("colomn_name").toString();
+            String separator = config.get("separator").toString();
+
+            fieldNames = field_name.split(separator);
+
+            for (String p : provinces) {
+                try {
+                    // Cập nhật status
+                    config.replace("?", "CRAWLING");
+                    GetData(url,p);
+                } catch (Exception e) {
+                    String id = config.get("id").toString();
+                    // Gặp lỗi cập nhật status
+                    config.replace("?", "CRAWL_ERROR");
+//                    connection.updateLog(id, "" , "", "");
+                }
+                config.replace("?", "CRAWLED");
+            }
+        }
+        // Đóng kết nối control
+        connection.closeControl();
+    }
+
+    // Tạo file
     public void saveToFile(weatherForecast WeatherForecast) throws IOException {
         try {
             LocalDate currentDate = LocalDate.now();
-            String excelFilePath = "E:\\Semester7\\DataWarehouse\\Crawl " + currentDate +".xlsx";
-//          localtion + currentDateTimE + format
+            String excelFilePath = location + currentDate + ".xlsx";
+
             Workbook workbook = getWorkbook(excelFilePath);
             Sheet sheet = workbook.getSheetAt(0);
 
@@ -58,6 +123,8 @@ public class Crawl {
             e.printStackTrace();
         }
     }
+
+    // Tạo file
     private static Workbook getWorkbook(String excelFilePath) throws IOException {
         File file = new File(excelFilePath);
         boolean fileExists = file.exists();
@@ -67,23 +134,24 @@ public class Crawl {
             Sheet sheet = workbook.createSheet("Data sheet");
 
             Row headerRow = sheet.createRow(0);
-            String[] fieldNames = {"get_date", "location","status","high","low","humidity","precipitation", "average_temp", "day", "night", "morning", "evening", "pressure", "wind", "sunrise", "sunset"};
-            for (int i = 0; i < 15; i++)
+
+            for (int i = 0; i < fieldNames.length; i++)
                 headerRow.createCell(i).setCellValue(fieldNames[i]);
             FileOutputStream outputStream = new FileOutputStream(excelFilePath);
             workbook.write(outputStream);
             workbook.close();
             outputStream.close();
         }
-
         FileInputStream inputStream = new FileInputStream(excelFilePath);
         return new XSSFWorkbook(inputStream);
     }
 
-    public void result(String url, String province) throws IOException {
+    // Crawl dữ liệu từ link
+    public void GetData(String url, String province) throws IOException {
         try {
             Document document;
             String url_pro = url + province + fday;
+            System.out.println(url_pro);
             document = Jsoup.connect(url_pro).userAgent("Mozila/5.0").get();
 
             Elements weatherDateElements = document.select("div.weather-date.shadow-sm");
@@ -137,10 +205,8 @@ public class Crawl {
         }
     }
 
-    public static void main(String[] args) throws IOException {
-        for (String p : provinces) {
-            new Crawl().result(url,p);
-        }
+    public static void main(String[] args) throws IOException, SQLException {
+        new Crawl().crawlData();
     }
 }
 
