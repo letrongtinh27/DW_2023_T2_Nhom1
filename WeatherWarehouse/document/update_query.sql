@@ -51,3 +51,5 @@ TRUNCATE TABLE staging;
 -- #QUERY_INSERT_LOG
 INSERT INTO control.logs(config_id, `name`, `status`, file_timestamp, note, created_at, created_by) VALUES (?, ?, ?, CURRENT_DATE, ?, NOW(), ?);
 
+-- #QUERY_SELECT_EMAIL
+SELECT email FROM control.configs WHERE id = ?;

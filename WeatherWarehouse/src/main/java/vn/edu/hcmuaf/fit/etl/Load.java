@@ -22,8 +22,10 @@ public class Load {
             final String cnError = "Cannot connected!";
             final String executeError = "Cannot Execute Query!";
 
+            String currentEmail = "tinhle2772002@gmail.com";
+
             if(dbc.getControlConn() == null) {
-                SendMail.sendEmail("", cnError, "Cannot connected to Control");
+                SendMail.sendEmail(currentEmail, cnError, "Cannot connected to Control");
             }
             String selectConfig = dbc.readQueryFromFile("document/update_query.sql", "-- #QUERY_SELECT_CONFIG");
             selectConfig = selectConfig.replace("?" , "'TRANSFORM_COMPLETED'");
@@ -31,19 +33,20 @@ public class Load {
 
             for ( Map<String, Object> config : configs) {
                 String id = config.get("id").toString();
+                currentEmail = dbc.getEmail(id);
                 // Kết nối tới staging.db
                 dbc.connectToStaging();
                 Connection staging = dbc.getStagingConn();
                 if(staging==null) {
                     dbc.log(id, "Log of load", "LOAD ERROR", "Cannot connect to staging", "load_script");
-                    SendMail.sendEmail("", cnError, "Cannot connected to Staging");
+                    SendMail.sendEmail(currentEmail, cnError, "Cannot connected to Staging");
                 }
                 // Kết nối tới warehouse.db
                 dbc.connectToWarehouse();
                 Connection warehouse = dbc.getWarehouseConn();
                 if(warehouse==null) {
                     dbc.log(id, "Log of load", "LOAD ERROR", "Cannot connect to warehouse", "load_script");
-                    SendMail.sendEmail("", cnError, "Cannot connected to Warehouse");
+                    SendMail.sendEmail(currentEmail, cnError, "Cannot connected to Warehouse");
                 }
                 // Câp nhật status trong config=LOAD_START
                 dbc.updateStatusConfig("LOAD_WAREHOUSE_START", id);
@@ -57,12 +60,14 @@ public class Load {
                     rs.runScript(reader);
                 } catch (IOException e) {
                     dbc.updateStatusConfig("LOAD_WAREHOUSE_ERROR", id);
-                    dbc.log(id, "Log of load", "LOAD ERROR", "File load_staging_to_warehouse.sql error", "load_script");
-                    SendMail.sendEmail("", executeError, "Cannot execute file load_staging_to_warehouse.sql in config " + e.getMessage());
+                    dbc.log(id, "Log of load", "LOAD ERROR", "File load_staging_to_warehouse.sql error " + e.getMessage(), "load_script");
+                    SendMail.sendEmail(currentEmail, executeError, "Cannot execute file load_staging_to_warehouse.sql in config " + e.getMessage());
                     return;
                 }
                 // Câp nhật status trong config=LOAD_COMPLETED
                 dbc.updateStatusConfig("LOAD_WAREHOUSE_COMPLETED", id);
+                dbc.log(id, "Log of load", "LOAD COMPLETE", "Load done!", "Load_script");
+                SendMail.sendEmail(currentEmail, "Warehouse LOAD COMPLETED!", "Load done in config_id: " + config.get("id").toString());
             }
             dbc.closeControl();
             dbc.closeStaging();
