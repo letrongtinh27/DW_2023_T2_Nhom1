@@ -25,21 +25,24 @@ public class Transform extends Thread {
             final String cnError = "Cannot connected!";
             final String executeError = "Cannot Execute Query!";
 
+            String currentEmail = "tinhle2772002@gmail.com";
+
             if(dbc.getControlConn()==null) {
-                SendMail.sendEmail("", cnError, "Cannot connected to Control");
+                SendMail.sendEmail(currentEmail, cnError, "Cannot connected to Control");
             }
             // Lấy dữ liệu bảng configs có flag = 1 && status = CRAWL_COMPLETED
             String selectConfig = dbc.readQueryFromFile("document/update_query.sql", "-- #QUERY_SELECT_CONFIG");
-            selectConfig = selectConfig.replace("?" , "'EXTRACT'");
+            selectConfig = selectConfig.replace("?" , "'CRAWL_COMPLETED'");
             List<Map<String, Object>> configs = dbc.query(selectConfig);
             for (Map<String, Object> config: configs) { // Lặp qua từng cấu hình
                 String id = config.get("id").toString();
+                currentEmail = dbc.getEmail(id);
                 // Kết nối tới staging.db
                 dbc.connectToStaging();
                 Connection staging = dbc.getStagingConn();
                 if(staging==null) {
                     dbc.log(id, "Log of transform", "TRANSFORM ERROR", "Cannot connect to staging", "transform_script" );
-                    SendMail.sendEmail("", cnError, "Cannot connected to Staging");
+                    SendMail.sendEmail(currentEmail, cnError, "Cannot connected to Staging");
                 }
                 // Câp nhật status trong config=TRANSFORM_START
                 dbc.updateStatusConfig("TRANSFORM_START", id);
@@ -53,8 +56,8 @@ public class Transform extends Thread {
                     rs.runScript(reader);
                 } catch (IOException e) {
                     dbc.updateStatusConfig("TRANSFORM_ERROR", id);
-                    dbc.log(id, "Log of transform", "TRANSFORM ERROR", "Cannot execute transform.sql", "transform_script" );
-                    SendMail.sendEmail("", executeError, "Cannot execute file transform.sql in config " + e.getMessage());
+                    dbc.log(id, "Log of transform", "TRANSFORM ERROR", "Cannot execute transform.sql " + e.getMessage(), "transform_script" );
+                    SendMail.sendEmail(currentEmail, executeError, "Cannot execute file transform.sql in config " + e.getMessage());
                     return;
                 }
                 // Chạy SQL thêm dữ liệu weather_dim
@@ -65,13 +68,14 @@ public class Transform extends Thread {
                     ps.executeUpdate();
                 } catch (SQLException e) {
                     dbc.updateStatusConfig("TRANSFORM_ERROR", id);
-                    dbc.log(id, "Log of transform", "TRANSFORM ERROR", "Cannot execute sql insert weather_dim ", "transform_script" );
-                    SendMail.sendEmail("", executeError, "Cannot execute insert weather_dim query in config " + e.getMessage());
+                    dbc.log(id, "Log of transform", "TRANSFORM ERROR", "Cannot execute sql insert weather_dim " + e.getMessage(), "transform_script" );
+                    SendMail.sendEmail(currentEmail, executeError, "Cannot execute insert weather_dim query in config " + e.getMessage());
                     return;
                 }
                 // Câp nhật status trong config=TRANSFORM_COMPLETED
                 dbc.updateStatusConfig("TRANSFORM_COMPLETED", id);
                 dbc.log(id, "Log of transform", "TRANSFORM COMPLETED", "Transform done!", "transform_script");
+                SendMail.sendEmail(currentEmail, "Warehouse TRANSFORM COMPLETED!", "Transform done in config_id: " + config.get("id").toString());
                 // Đóng kết nối staging.db
                 dbc.closeStaging();
             }

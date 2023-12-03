@@ -96,9 +96,7 @@ public class DatabaseConn {
         List<Map<String, Object>> results = new ArrayList<>();
         Connection conn = this.controlConn;
         try {
-            // crate statement
             Statement stmt = conn.createStatement();
-            // get data from table 'student'
             rs = stmt.executeQuery(sql);
             results = rsToList(rs);
             rs.close();
@@ -204,6 +202,24 @@ public class DatabaseConn {
                 ps.setString(15, sunrise);
                 ps.setString(16, sunset);
         ps.executeUpdate();
+    }
+
+    public String getEmail(String config_id) throws SQLException {
+        String sql = this.readQueryFromFile("document/update_query.sql", "-- #QUERY_SELECT_EMAIL");
+        try (PreparedStatement ps = this.getControlConn().prepareStatement(sql)) {
+            ps.setString(1, config_id);
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Map<String, Object>> resultList = rsToList(rs);
+                if (!resultList.isEmpty()) {
+                    Object emailObj = resultList.get(0).get("email");
+                    if (emailObj != null) {
+                        return emailObj.toString();
+                    }
+                }
+            }
+        }
+        // Return null if no email is found
+        return null;
     }
 
     public static void main(String[] args) throws SQLException {
