@@ -41,3 +41,6 @@ SELECT
 FROM staging.staging s
          LEFT JOIN warehouse.weather_dim wd ON s.status = wd.status_name
 WHERE s.status IS NOT NULL AND wd.status_name IS NULL;
+
+-- #QUERY_INSERT_LOG
+INSERT INTO control.logs(config_id, `name`, `status`, file_timestamp, note, created_at, created_by) VALUES (?, ?, ?, CURRENT_DATE, ?, NOW(), ?);
