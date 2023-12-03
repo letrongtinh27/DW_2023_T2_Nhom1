@@ -29,7 +29,7 @@ public class Extract {
                 Connection control  = connection.getControlConn();
                 // Không kết nối được thì gửi mail
                 if(control == null) {
-//                    SendMail.sendEmail("","" ,"" );
+                    SendMail.sendEmail("20130266@st.hcmuaf.edu.vn","Error" ,"Can not connect ControlDB");
                 }
                 // lấy ra config theo status crawled
                 String getConfig = connection.readQueryFromFile("document/update_query.sql", "-- #QUERY_SELECT_CONFIG");

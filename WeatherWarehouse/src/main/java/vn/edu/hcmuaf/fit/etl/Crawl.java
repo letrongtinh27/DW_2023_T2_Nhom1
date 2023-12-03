@@ -23,6 +23,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import vn.edu.hcmuaf.fit.dbcnn.DatabaseConn;
 import vn.edu.hcmuaf.fit.model.weatherForecast;
+import vn.edu.hcmuaf.fit.util.SendMail;
 
 public class Crawl {
     static String url = "";
@@ -37,13 +38,14 @@ public class Crawl {
         LocalDate currentDate = LocalDate.now();
 
         DatabaseConn connection = new DatabaseConn();
+        // kết nối db control
         connection.connectToControl();
 
         Connection control = connection.getControlConn();
 
         // K kết nối được thì gửi mail
         if(control == null) {
-//                    SendMail.sendEmail("","" ,"" );
+            SendMail.sendEmail("20130266@st.hcmuaf.edu.vn","Error" ,"Can not connect ControlDB");
         }
 
         String getConfig = connection.readQueryFromFile("document/update_query.sql", "-- #QUERY_SELECT_CONFIG");
@@ -51,15 +53,16 @@ public class Crawl {
         getConfig = getConfig.replace("?", "'REPAIRED'");
 
 
-
         List<Map<String, Object>> listConfig = connection.query(getConfig);
         // Chạy từng dòng config
         for (Map<String, Object> config : listConfig) {
+            String id = config.get("id").toString();
             url = config.get("source_path").toString();
             location = config.get("location").toString();
             format = config.get("format").toString();
 
             File file = new File(location + currentDate +  format);
+            // Nếu file đã tồn tại thì xóa đi để crawl dữ liệu mới
             if (file.exists()) {
                 file.delete();
             }
@@ -72,17 +75,20 @@ public class Crawl {
             for (String p : provinces) {
                 try {
                     // Cập nhật status
-                    config.replace("?", "CRAWLING");
+                    connection.updateStatusConfig("CRAWLING",id);
                     GetData(url,p);
                 } catch (Exception e) {
-                    String id = config.get("id").toString();
+//                    String id = config.get("id").toString();
                     // Gặp lỗi cập nhật status
-                    config.replace("?", "CRAWL_ERROR");
-//                    connection.updateLog(id, "" , "", "");
+                    connection.updateStatusConfig("CRAWL_ERROR",id);
+                    connection.updateLog(id, "CRAWL_ERROR" , "Can not crawl data by source_path", "Hoang");
+                    return;
                 }
-                config.replace("?", "CRAWLED");
             }
+            connection.updateStatusConfig("CRAWLED",id);
+            connection.updateLog(id, "CRAWLED" , "crawl complete", "Hoang");
         }
+
         // Đóng kết nối control
         connection.closeControl();
     }
@@ -91,7 +97,7 @@ public class Crawl {
     public void saveToFile(weatherForecast WeatherForecast) throws IOException {
         try {
             LocalDate currentDate = LocalDate.now();
-            String excelFilePath = location + currentDate + ".xlsx";
+            String excelFilePath = location + currentDate +  format;
 
             Workbook workbook = getWorkbook(excelFilePath);
             Sheet sheet = workbook.getSheetAt(0);

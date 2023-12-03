@@ -150,16 +150,17 @@ public class DatabaseConn {
         ps.setString(2, id);
         ps.executeUpdate();
     }
-    public void updateLog(String id, String status, String note, String updated_by) throws SQLException {
-        String sql = this.readQueryFromFile("document/update_query.sql", "-- #QUERY_UPDATE_LOGS");
-        Connection staging = this.getStagingConn();
-        PreparedStatement ps = staging.prepareStatement(sql);
-        ps.setString(1, status);
-        ps.setString(2, note);
-        ps.setString(3, updated_by);
-        ps.setString(4, id);
-        ps.executeUpdate();
-    }
+//    public void updateLog(String id, String status, String note, String updated_by) throws SQLException {
+//        String sql = this.readQueryFromFile("document/update_query.sql", "-- #QUERY_UPDATE_LOGS");
+//        PreparedStatement ps = this.getControlConn().prepareStatement(sql);
+////        Connection control = this.getControlConn();
+////        PreparedStatement ps = control.prepareStatement(sql);
+//        ps.setString(1, status);
+//        ps.setString(2, note);
+//        ps.setString(3, updated_by);
+//        ps.setString(4, id);
+//        ps.executeUpdate();
+//    }
 
     public void Truncate_staging() throws SQLException {
         String sql = this.readQueryFromFile("document/update_query.sql","-- #QUERY_TRUNCATE_STAGING");
@@ -167,6 +168,7 @@ public class DatabaseConn {
         PreparedStatement ps = staging.prepareStatement(sql);
         ps.executeUpdate();
     }
+
     public void LoadStaging(String date, String location, String status, String high, String low,
                             String humidity, String precipitation,  String average_temp, String day,
                             String night, String morning,  String evening, String pressure, String wind,
@@ -191,5 +193,12 @@ public class DatabaseConn {
                 ps.setString(15, sunrise);
                 ps.setString(16, sunset);
         ps.executeUpdate();
+    }
+
+    public static void main(String[] args) throws SQLException {
+//        DatabaseConn connection = new DatabaseConn();
+//        connection.connectToControl();
+//        connection.updateLog("1", "CRAWLED" , "crawl complete", "Hoang");
+
     }
 }
