@@ -42,5 +42,12 @@ FROM staging.staging s
          LEFT JOIN warehouse.weather_dim wd ON s.status = wd.status_name
 WHERE s.status IS NOT NULL AND wd.status_name IS NULL;
 
+-- #QUERY_LOAD_TO_STAGING
+INSERT INTO  staging ( date, location,status,high,low, humidity,precipitation,average_temp, day, night, morning, evening, pressure, wind, sunrise, sunset) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+
+-- #QUERY_TRUNCATE_STAGING
+TRUNCATE TABLE staging;
+
 -- #QUERY_INSERT_LOG
 INSERT INTO control.logs(config_id, `name`, `status`, file_timestamp, note, created_at, created_by) VALUES (?, ?, ?, CURRENT_DATE, ?, NOW(), ?);
+
