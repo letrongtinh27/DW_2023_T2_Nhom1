@@ -139,7 +139,7 @@ public class DatabaseConn {
                 }
             }
         } catch (Exception e) {
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
         return queryBuilder.toString();
     }
@@ -171,5 +171,45 @@ public class DatabaseConn {
         ps.setString(4, note);
         ps.setString(5, created_by);
         ps.executeUpdate();
+    }
+
+    public void Truncate_staging() throws SQLException {
+        String sql = this.readQueryFromFile("document/update_query.sql","-- #QUERY_TRUNCATE_STAGING");
+        Connection staging = this.getStagingConn();
+        PreparedStatement ps = staging.prepareStatement(sql);
+        ps.executeUpdate();
+    }
+
+    public void LoadStaging(String date, String location, String status, String high, String low,
+                            String humidity, String precipitation,  String average_temp, String day,
+                            String night, String morning,  String evening, String pressure, String wind,
+                            String sunrise, String sunset ) throws SQLException {
+        String sql = this.readQueryFromFile("document/update_query.sql","-- #QUERY_UPDATE_LOGS");
+        Connection staging = this.getStagingConn();
+        PreparedStatement ps = staging.prepareStatement(sql);
+                ps.setString(1, date);
+                ps.setString(2, location);
+                ps.setString(3, status);
+                ps.setString(4, high);
+                ps.setString(5, low);
+                ps.setString(6, humidity);
+                ps.setString(7, precipitation);
+                ps.setString(8, average_temp);
+                ps.setString(9, day);
+                ps.setString(10, night);
+                ps.setString(11, morning);
+                ps.setString(12, evening);
+                ps.setString(13, pressure);
+                ps.setString(14, wind);
+                ps.setString(15, sunrise);
+                ps.setString(16, sunset);
+        ps.executeUpdate();
+    }
+
+    public static void main(String[] args) throws SQLException {
+//        DatabaseConn connection = new DatabaseConn();
+//        connection.connectToControl();
+//        connection.updateLog("1", "CRAWLED" , "crawl complete", "Hoang");
+
     }
 }
