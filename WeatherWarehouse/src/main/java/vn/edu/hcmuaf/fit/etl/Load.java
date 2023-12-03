@@ -31,22 +31,18 @@ public class Load {
 
             for ( Map<String, Object> config : configs) {
                 String id = config.get("id").toString();
-                // Lấy log của từng cấu hình
-                String getLog = dbc.readQueryFromFile("document/update_query.sql", "-- #QUERY_SELECT_LOGS");
-                getLog = getLog.replace("?", config.get("id").toString());
-                Map<String, Object> log = dbc.query(getLog).get(0);
                 // Kết nối tới staging.db
                 dbc.connectToStaging();
                 Connection staging = dbc.getStagingConn();
                 if(staging==null) {
-                    dbc.updateLog(log.get("id").toString(), cnError, "Cannot connect to staging", "load_script");
+                    dbc.log(id, "Log of load", "LOAD ERROR", "Cannot connect to staging", "load_script");
                     SendMail.sendEmail("", cnError, "Cannot connected to Staging");
                 }
                 // Kết nối tới warehouse.db
                 dbc.connectToWarehouse();
                 Connection warehouse = dbc.getWarehouseConn();
                 if(warehouse==null) {
-                    dbc.updateLog(log.get("id").toString(), cnError, "Cannot connect to warehouse", "load_script");
+                    dbc.log(id, "Log of load", "LOAD ERROR", "Cannot connect to warehouse", "load_script");
                     SendMail.sendEmail("", cnError, "Cannot connected to Warehouse");
                 }
                 // Câp nhật status trong config=LOAD_START
@@ -61,8 +57,8 @@ public class Load {
                     rs.runScript(reader);
                 } catch (IOException e) {
                     dbc.updateStatusConfig("LOAD_WAREHOUSE_ERROR", id);
-                    dbc.updateLog(log.get("id").toString(), "File load_staging_to_warehouse.sql error", "Cannot execute load_staging_to_warehouse.sql " + e.getMessage(), "load_script");
-                    SendMail.sendEmail("", executeError, "Cannot execute file load_staging_to_warehouse.sql in config " + config.toString());
+                    dbc.log(id, "Log of load", "LOAD ERROR", "File load_staging_to_warehouse.sql error", "load_script");
+                    SendMail.sendEmail("", executeError, "Cannot execute file load_staging_to_warehouse.sql in config " + e.getMessage());
                     return;
                 }
                 // Câp nhật status trong config=LOAD_COMPLETED
@@ -94,15 +90,11 @@ public class Load {
 
             for ( Map<String, Object> config : configs) {
                 String id = config.get("id").toString();
-                // Lấy log của từng cấu hình
-                String getLog = dbc.readQueryFromFile("document/update_query.sql", "-- #QUERY_SELECT_LOGS");
-                getLog = getLog.replace("?", config.get("id").toString());
-                Map<String, Object> log = dbc.query(getLog).get(0);
                 // Kết nối tới warehouse.db
                 dbc.connectToWarehouse();
                 Connection warehouse = dbc.getWarehouseConn();
                 if(warehouse==null) {
-                    dbc.updateLog(log.get("id").toString(), cnError, "Cannot connect to warehouse", "load_script");
+                    dbc.log(id, "Log of load", "LOAD ERROR", "Cannot connect to warehouse", "load_script");
                     SendMail.sendEmail("", cnError, "Cannot connected to Warehouse");
                 }
                 // Câp nhật status trong config=LOAD_START
@@ -117,7 +109,7 @@ public class Load {
                     rs.runScript(reader);
                 } catch (IOException e) {
                     dbc.updateStatusConfig("LOAD_AGGREGATE_ERROR", id);
-                    dbc.updateLog(log.get("id").toString(), "File load_warehouse_to_aggregate.sql error", "Cannot execute load_warehouse_to_aggregate.sql " + e.getMessage(), "load_script");
+                    dbc.log(id, "Log of load", "LOAD ERROR", "File load_warehouse_to_aggregate.sql error", "load_script");
                     SendMail.sendEmail("", executeError, "Cannot execute file load_warehouse_to_aggregate.sql in config " + config.toString());
                     return;
                 }

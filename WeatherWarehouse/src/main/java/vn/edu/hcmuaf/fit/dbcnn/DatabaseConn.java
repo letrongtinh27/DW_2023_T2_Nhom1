@@ -150,17 +150,28 @@ public class DatabaseConn {
         ps.setString(2, id);
         ps.executeUpdate();
     }
-//    public void updateLog(String id, String status, String note, String updated_by) throws SQLException {
-//        String sql = this.readQueryFromFile("document/update_query.sql", "-- #QUERY_UPDATE_LOGS");
-//        PreparedStatement ps = this.getControlConn().prepareStatement(sql);
-////        Connection control = this.getControlConn();
-////        PreparedStatement ps = control.prepareStatement(sql);
-//        ps.setString(1, status);
-//        ps.setString(2, note);
-//        ps.setString(3, updated_by);
-//        ps.setString(4, id);
-//        ps.executeUpdate();
-//    }
+    public void updateLog(String id, String status, String note, String updated_by) throws SQLException {
+        String sql = this.readQueryFromFile("document/update_query.sql", "-- #QUERY_UPDATE_LOGS");
+        Connection control = this.getControlConn();
+        PreparedStatement ps = control.prepareStatement(sql);
+        ps.setString(1, status);
+        ps.setString(2, note);
+        ps.setString(3, updated_by);
+        ps.setString(4, id);
+        ps.executeUpdate();
+    }
+
+    public void log(String config_id, String name, String status, String note, String created_by) throws SQLException {
+        String sql = this.readQueryFromFile("document/update_query.sql", "-- #QUERY_INSERT_LOG");
+        Connection control = this.getControlConn();
+        PreparedStatement ps = control.prepareStatement(sql);
+        ps.setString(1, config_id);
+        ps.setString(2, name);
+        ps.setString(3, status);
+        ps.setString(4, note);
+        ps.setString(5, created_by);
+        ps.executeUpdate();
+    }
 
     public void Truncate_staging() throws SQLException {
         String sql = this.readQueryFromFile("document/update_query.sql","-- #QUERY_TRUNCATE_STAGING");
