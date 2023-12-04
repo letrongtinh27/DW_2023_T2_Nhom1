@@ -128,4 +128,10 @@ public class Load {
             throw new RuntimeException(e);
         }
     }
+
+    public static void main(String[] args) {
+//        new Load().loadStagingToWarehouse();
+        new Load().loadWarehouseToAggregate();
+
+    }
 }

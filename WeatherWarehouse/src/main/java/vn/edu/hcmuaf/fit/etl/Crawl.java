@@ -86,7 +86,8 @@ public class Crawl {
                 }
             }
             connection.updateStatusConfig("CRAWLED",id);
-            connection.updateLog(id, "CRAWLED" , "crawl complete", "Hoang");
+            connection.log(id, "Log of Crawler" , "CRAWLER COMPLETE", "Crawler done!", "crawler_script");
+
         }
 
         // Đóng kết nối control

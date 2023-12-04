@@ -13,6 +13,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,7 @@ public class Extract {
                 }
                 // lấy ra config theo status crawled
                 String getConfig = connection.readQueryFromFile("document/update_query.sql", "-- #QUERY_SELECT_CONFIG");
-                getConfig = getConfig.replace("?", " CRAWLED");
+                getConfig = getConfig.replace("?", "'CRAWLED'");
 
                 List<Map<String, Object>> listConfig = connection.query(getConfig);
                 for (Map<String, Object> config : listConfig) {
@@ -51,9 +52,12 @@ public class Extract {
                         SendMail.sendEmail("","" ,"" );
                         connection.updateLog(id, "" , "", "");
                     }
-
-                    try (FileInputStream excelFile = new FileInputStream(config.get("source_path").toString() + config.get("location").toString() + config.get("format").toString());
+                    System.out.println(config.get("source_path").toString() + config.get("location").toString() + config.get("format").toString());
+                    LocalDate currentDate = LocalDate.now();
+                    String file_path = config.get("location").toString() + currentDate + config.get("format").toString();
+                    try (FileInputStream excelFile = new FileInputStream(file_path);
                     Workbook workbook = new XSSFWorkbook(excelFile);) {
+                        System.out.println(excelFile.toString());
                         Sheet sheet = workbook.getSheetAt(0);
                         Iterator<Row> iterator = sheet.iterator();
                         iterator.next();
@@ -80,6 +84,8 @@ public class Extract {
                 String sunrise = currentRow.getCell(14).getStringCellValue();
                 String sunset = currentRow.getCell(15).getStringCellValue();
 
+
+                            System.out.println(date);
                 // Load dữ liệu từ excel vào staging.db
                 connection.LoadStaging(date, location, status, high, low, humidity, precipitation, average_temp, day, night, morning, evening, pressure, wind, sunrise, sunset);
                         }
@@ -88,9 +94,12 @@ public class Extract {
                         // Gặp lỗi cập nhật status
                         config.replace("?", "CRAWL_ERROR");
 //                    connection.updateLog(id1, "" , "", "");
+                        connection.updateStatusConfig("CRAWL_ERROR", id);
+                        connection.log(id, "Log of transform", "TRANSFORM ERROR", "Cannot execute sql insert weather_dim " + e.getMessage(), "transform_script" );
+//                        SendMail.sendEmail(currentEmail, executeError, "Cannot execute insert weather_dim query in config " + e.getMessage());
                         return;
                     }
-                    config.replace("?", "EXTRACTED");
+                    connection.updateStatusConfig("CRAWL_COMPLETED", id);
                     connection.closeStaging();
                 }
                 connection.closeControl();

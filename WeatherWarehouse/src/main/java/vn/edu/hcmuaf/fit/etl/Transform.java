@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class Transform extends Thread {
+public class Transform{
     private void transform() {
         try {
             // Kết nối control.db
@@ -85,8 +85,8 @@ public class Transform extends Thread {
             throw new RuntimeException(e);
         }
     }
-    @Override
-    public void run() {
-        transform();
+
+    public static void main(String[] args) {
+        new Transform().transform();
     }
 }
