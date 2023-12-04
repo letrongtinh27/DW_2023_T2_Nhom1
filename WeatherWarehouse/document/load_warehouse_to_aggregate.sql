@@ -1,3 +1,6 @@
+-- #QUERY_TRUNCATE_AGGREGATE
+TRUNCATE TABLE warehouse.`aggregate`;
+
 -- #QUERY_INSERT_AGGREGATE
 INSERT INTO warehouse.`aggregate` (location, date, `status`, low, high, humidity, precipitation, average_temp, day, night, morning, evening, pressure, wind, sunrise, sunset)
 SELECT
