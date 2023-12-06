@@ -108,7 +108,11 @@ public class Extract {
             }
         }
 
+        public void start() {
+            extract();
+        }
+
     public static void main(String[] args) {
-        new Extract().extract();
+        new Extract().start();
     }
 }

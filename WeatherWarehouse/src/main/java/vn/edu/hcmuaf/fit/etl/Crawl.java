@@ -8,7 +8,6 @@ import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -208,12 +207,19 @@ public class Crawl {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println(e);
+        }
+    }
+
+    public void start() {
+        try {
+            crawlData();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     public static void main(String[] args) throws IOException, SQLException {
-        new Crawl().crawlData();
+        new Crawl().start();
     }
 }
 
