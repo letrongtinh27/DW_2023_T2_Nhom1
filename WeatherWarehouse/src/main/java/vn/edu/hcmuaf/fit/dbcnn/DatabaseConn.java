@@ -222,6 +222,38 @@ public class DatabaseConn {
         return null;
     }
 
+    public double getTableSize() throws SQLException {
+        String sql = readQueryFromFile("document/update_query.sql", "-- #QUERY_SELECT_SIZE_WEATHERDATA");
+        try (PreparedStatement ps = this.getWarehouseConn().prepareStatement(sql)){
+            ResultSet resultSet = ps.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getDouble("TABLE_SIZE_MB");
+            }
+        }
+        return 0.0;
+    }
+
+    public void exportAndStoreOldData(String date, String path) {
+        String sql = readQueryFromFile("document/update_query.sql", "-- #QUERY_EXPORT_DATA_OLD");
+        try (PreparedStatement exportStatement = this.warehouseConn.prepareStatement(sql)) {
+            exportStatement.setString(1, path);
+            exportStatement.setString(2, date);
+            exportStatement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void deleteDataOld(String date) {
+        String sql = readQueryFromFile("document/update_query.sql", "-- #QUERY_DELETE_DATA_OLD");
+        try (PreparedStatement exportStatement = this.warehouseConn.prepareStatement(sql)) {
+            exportStatement.setString(1, date);
+            exportStatement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void main(String[] args) throws SQLException {
 //        DatabaseConn connection = new DatabaseConn();
 //        connection.connectToControl();
