@@ -81,12 +81,12 @@ public class Crawl {
 //                    String id = config.get("id").toString();
                     // Gặp lỗi cập nhật status
                     connection.updateStatusConfig("CRAWL_ERROR",id);
-                    connection.updateLog(id, "CRAWL_ERROR" , "Can not crawl data by source_path", "Hoang");
+                    connection.log(id, "weather","CRAWL_ERROR" ,"Cannot crawl data by source_path","Crawler");
                     return;
                 }
             }
             connection.updateStatusConfig("CRAWLED",id);
-            connection.updateLog(id, "CRAWLED" , "crawl complete", "Hoang");
+            connection.log(id, "weather","CRAWLED" ,"Crawl complete","Crawler");
         }
 
         // Đóng kết nối control

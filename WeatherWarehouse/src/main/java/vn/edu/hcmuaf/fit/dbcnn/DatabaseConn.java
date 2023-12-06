@@ -184,7 +184,7 @@ public class DatabaseConn {
                             String humidity, String precipitation,  String average_temp, String day,
                             String night, String morning,  String evening, String pressure, String wind,
                             String sunrise, String sunset ) throws SQLException {
-        String sql = this.readQueryFromFile("document/update_query.sql","-- #QUERY_UPDATE_LOGS");
+        String sql = this.readQueryFromFile("document/update_query.sql","-- #QUERY_LOAD_TO_STAGING");
         Connection staging = this.getStagingConn();
         PreparedStatement ps = staging.prepareStatement(sql);
                 ps.setString(1, date);
@@ -207,9 +207,5 @@ public class DatabaseConn {
     }
 
     public static void main(String[] args) throws SQLException {
-//        DatabaseConn connection = new DatabaseConn();
-//        connection.connectToControl();
-//        connection.updateLog("1", "CRAWLED" , "crawl complete", "Hoang");
-
     }
 }
