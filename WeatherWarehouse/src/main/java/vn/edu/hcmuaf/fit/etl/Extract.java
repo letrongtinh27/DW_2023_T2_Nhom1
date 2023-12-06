@@ -54,13 +54,12 @@ public class Extract {
                         connection.updateStatusConfig("EXTRACT_ERR",id);
                         SendMail.sendEmail("20130266@st.hcmuaf.edu.vn","Error" ,"Can not connect Staging DB");
                         connection.log(id, "weather", "EXTRACT_ERROR", "Cannot connect Staging db", "extracter");
-//                        config.replace("?", "EXTRACT_ERR");
-//                        SendMail.sendEmail("","" ,"" );
-//                        connection.updateLog(id, "" , "", "");
+//
                     }
 
                     try (FileInputStream excelFile = new FileInputStream(config.get("source_path").toString() + config.get("location").toString() + currentDate + config.get("format").toString());
                          Workbook workbook = new XSSFWorkbook(excelFile);) {
+
                         Sheet sheet = workbook.getSheetAt(0);
                         Iterator<Row> iterator = sheet.iterator();
                         iterator.next();
@@ -86,6 +85,8 @@ public class Extract {
                             String sunrise = currentRow.getCell(14).getStringCellValue();
                             String sunset = currentRow.getCell(15).getStringCellValue();
 
+
+                            System.out.println(date);
                 // Load dữ liệu từ excel vào staging.db
                     connection1.LoadStaging(date, location, status, high, low, humidity, precipitation, average_temp, day, night, morning, evening, pressure, wind, sunrise, sunset);
                         }
@@ -96,7 +97,10 @@ public class Extract {
                         return;
                     }
                     connection.updateStatusConfig("EXTRACTED",id);
+                    connection.log(id, "weather", "EXTRACTED", "EXTRACT COMPLETE","extracter");
+
                     connection1.closeStaging();
+
                 }
                 connection.closeControl();
             } catch (Exception e) {
@@ -104,7 +108,12 @@ public class Extract {
             }
         }
 
-    public static void main(String[] args) {
-        new Extract().extract();
+        public void start() {
+            extract();
         }
+
+    public static void main(String[] args) {
+        new Extract().start();
+    }
+
 }
