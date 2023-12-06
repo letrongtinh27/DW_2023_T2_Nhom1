@@ -29,6 +29,7 @@ public class Transform{
 
             if(dbc.getControlConn()==null) {
                 SendMail.sendEmail(currentEmail, cnError, "Cannot connected to Control");
+                return;
             }
             // Lấy dữ liệu bảng configs có flag = 1 && status = CRAWL_COMPLETED
             String selectConfig = dbc.readQueryFromFile("document/update_query.sql", "-- #QUERY_SELECT_CONFIG");
@@ -43,6 +44,8 @@ public class Transform{
                 if(staging==null) {
                     dbc.log(id, "Log of transform", "TRANSFORM ERROR", "Cannot connect to staging", "transform_script" );
                     SendMail.sendEmail(currentEmail, cnError, "Cannot connected to Staging");
+                    dbc.updateStatusConfig("TRANSFORM_ERROR", id);
+                    return;
                 }
                 // Câp nhật status trong config=TRANSFORM_START
                 dbc.updateStatusConfig("TRANSFORM_START", id);
@@ -63,7 +66,6 @@ public class Transform{
                 // Chạy SQL thêm dữ liệu weather_dim
                 String updateWeather_dim = dbc.readQueryFromFile("document/update_query.sql", "-- #QUERY_UPDATE_WEATHER_DIM");
                 try {
-                    assert staging != null;
                     PreparedStatement ps = staging.prepareStatement(updateWeather_dim);
                     ps.executeUpdate();
                 } catch (SQLException e) {
