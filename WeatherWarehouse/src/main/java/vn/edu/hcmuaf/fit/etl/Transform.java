@@ -93,6 +93,10 @@ public class Transform{
     }
 
     public static void main(String[] args) {
+<<<<<<< HEAD
+        new Transform().run();
+=======
         new Transform().start();
+>>>>>>> d36d28e9553f41a54c2daa6090e4f72bf9bfabfa
     }
 }

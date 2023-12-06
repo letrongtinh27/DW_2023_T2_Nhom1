@@ -8,6 +8,7 @@ import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -80,13 +81,12 @@ public class Crawl {
 //                    String id = config.get("id").toString();
                     // Gặp lỗi cập nhật status
                     connection.updateStatusConfig("CRAWL_ERROR",id);
-                    connection.updateLog(id, "CRAWL_ERROR" , "Can not crawl data by source_path", "Hoang");
+                    connection.log(id, "weather","CRAWL_ERROR" ,"Cannot crawl data by source_path","Crawler");
                     return;
                 }
             }
             connection.updateStatusConfig("CRAWLED",id);
-            connection.log(id, "Log of Crawler" , "CRAWLER COMPLETE", "Crawler done!", "crawler_script");
-
+            connection.log(id, "weather","CRAWLED" ,"Crawl complete","Crawler");
         }
 
         // Đóng kết nối control
@@ -207,19 +207,12 @@ public class Crawl {
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    public void start() {
-        try {
-            crawlData();
-        } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
         }
     }
 
     public static void main(String[] args) throws IOException, SQLException {
-        new Crawl().start();
+        new Crawl().crawlData();
     }
 }
 
