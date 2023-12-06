@@ -142,14 +142,14 @@ public class DatabaseConn {
         return queryBuilder.toString();
     }
     public void updateStatusConfig(String status, String id) throws SQLException {
-        String sql = this.readQueryFromFile("document/update_query.sql", "-- #QUERY_UPDATE_CONFIG_STATUS");
+        String sql = this.readQueryFromFile("document/query.sql", "-- #QUERY_UPDATE_CONFIG_STATUS");
         PreparedStatement ps = this.getControlConn().prepareStatement(sql);
         ps.setString(1, status);
         ps.setString(2, id);
         ps.executeUpdate();
     }
     public void updateLog(String id, String status, String note, String updated_by) throws SQLException {
-        String sql = this.readQueryFromFile("document/update_query.sql", "-- #QUERY_UPDATE_LOGS");
+        String sql = this.readQueryFromFile("document/query.sql", "-- #QUERY_UPDATE_LOGS");
         Connection control = this.getControlConn();
         PreparedStatement ps = control.prepareStatement(sql);
         ps.setString(1, status);
@@ -160,7 +160,7 @@ public class DatabaseConn {
     }
 
     public void log(String config_id, String name, String status, String note, String created_by) throws SQLException {
-        String sql = this.readQueryFromFile("document/update_query.sql", "-- #QUERY_INSERT_LOG");
+        String sql = this.readQueryFromFile("document/query.sql", "-- #QUERY_INSERT_LOG");
         Connection control = this.getControlConn();
         PreparedStatement ps = control.prepareStatement(sql);
         ps.setString(1, config_id);
@@ -172,7 +172,7 @@ public class DatabaseConn {
     }
 
     public void Truncate_staging() throws SQLException {
-        String sql = this.readQueryFromFile("document/update_query.sql","-- #QUERY_TRUNCATE_STAGING");
+        String sql = this.readQueryFromFile("document/query.sql","-- #QUERY_TRUNCATE_STAGING");
         Connection staging = this.getStagingConn();
         PreparedStatement ps = staging.prepareStatement(sql);
         ps.executeUpdate();
@@ -182,7 +182,7 @@ public class DatabaseConn {
                             String humidity, String precipitation,  String average_temp, String day,
                             String night, String morning,  String evening, String pressure, String wind,
                             String sunrise, String sunset ) throws SQLException {
-        String sql = this.readQueryFromFile("document/update_query.sql","-- #QUERY_LOAD_TO_STAGING");
+        String sql = this.readQueryFromFile("document/query.sql","-- #QUERY_LOAD_TO_STAGING");
         Connection staging = this.getStagingConn();
         PreparedStatement ps = staging.prepareStatement(sql);
                 ps.setString(1, date);
@@ -205,7 +205,7 @@ public class DatabaseConn {
     }
 
     public String getEmail(String config_id) throws SQLException {
-        String sql = this.readQueryFromFile("document/update_query.sql", "-- #QUERY_SELECT_EMAIL");
+        String sql = this.readQueryFromFile("document/query.sql", "-- #QUERY_SELECT_EMAIL");
         try (PreparedStatement ps = this.getControlConn().prepareStatement(sql)) {
             ps.setString(1, config_id);
             try (ResultSet rs = ps.executeQuery()) {
@@ -223,7 +223,7 @@ public class DatabaseConn {
     }
 
     public double getTableSize() throws SQLException {
-        String sql = readQueryFromFile("document/update_query.sql", "-- #QUERY_SELECT_SIZE_WEATHERDATA");
+        String sql = readQueryFromFile("document/query.sql", "-- #QUERY_SELECT_SIZE_WEATHERDATA");
         try (PreparedStatement ps = this.getWarehouseConn().prepareStatement(sql)){
             ResultSet resultSet = ps.executeQuery();
             if (resultSet.next()) {
@@ -234,7 +234,7 @@ public class DatabaseConn {
     }
 
     public void exportAndStoreOldData(String date, String path) {
-        String sql = readQueryFromFile("document/update_query.sql", "-- #QUERY_EXPORT_DATA_OLD");
+        String sql = readQueryFromFile("document/query.sql", "-- #QUERY_EXPORT_DATA_OLD");
         try (PreparedStatement exportStatement = this.warehouseConn.prepareStatement(sql)) {
             exportStatement.setString(1, path);
             exportStatement.setString(2, date);
@@ -245,7 +245,7 @@ public class DatabaseConn {
     }
 
     public void deleteDataOld(String date) {
-        String sql = readQueryFromFile("document/update_query.sql", "-- #QUERY_DELETE_DATA_OLD");
+        String sql = readQueryFromFile("document/query.sql", "-- #QUERY_DELETE_DATA_OLD");
         try (PreparedStatement exportStatement = this.warehouseConn.prepareStatement(sql)) {
             exportStatement.setString(1, date);
             exportStatement.execute();

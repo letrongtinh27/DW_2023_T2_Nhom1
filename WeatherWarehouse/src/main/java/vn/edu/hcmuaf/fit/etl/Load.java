@@ -26,7 +26,7 @@ public class Load {
                 SendMail.sendEmail(currentEmail, cnError, "Cannot connected to Control");
                 return;
             }
-            String selectConfig = dbc.readQueryFromFile("document/update_query.sql", "-- #QUERY_SELECT_CONFIG");
+            String selectConfig = dbc.readQueryFromFile("document/query.sql", "-- #QUERY_SELECT_CONFIG");
             selectConfig = selectConfig.replace("?" , "'TRANSFORM_COMPLETED'");
             List<Map<String, Object>> configs = dbc.query(selectConfig);
 
@@ -102,7 +102,7 @@ public class Load {
                 SendMail.sendEmail(currentEmail, cnError, "Cannot connected to Control");
                 return;
             }
-            String selectConfig = dbc.readQueryFromFile("document/update_query.sql", "-- #QUERY_SELECT_CONFIG");
+            String selectConfig = dbc.readQueryFromFile("document/query.sql", "-- #QUERY_SELECT_CONFIG");
             selectConfig = selectConfig.replace("?" , "'LOAD_WAREHOUSE_COMPLETED'");
             List<Map<String, Object>> configs = dbc.query(selectConfig);
 

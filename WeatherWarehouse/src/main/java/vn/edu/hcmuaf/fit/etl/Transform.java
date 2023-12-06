@@ -32,7 +32,7 @@ public class Transform{
                 return;
             }
             // Lấy dữ liệu bảng configs có flag = 1 && status = CRAWL_COMPLETED
-            String selectConfig = dbc.readQueryFromFile("document/update_query.sql", "-- #QUERY_SELECT_CONFIG");
+            String selectConfig = dbc.readQueryFromFile("document/query.sql", "-- #QUERY_SELECT_CONFIG");
             selectConfig = selectConfig.replace("?" , "'CRAWL_COMPLETED'");
             List<Map<String, Object>> configs = dbc.query(selectConfig);
             for (Map<String, Object> config: configs) { // Lặp qua từng cấu hình
@@ -64,7 +64,7 @@ public class Transform{
                     return;
                 }
                 // Chạy SQL thêm dữ liệu weather_dim
-                String updateWeather_dim = dbc.readQueryFromFile("document/update_query.sql", "-- #QUERY_UPDATE_WEATHER_DIM");
+                String updateWeather_dim = dbc.readQueryFromFile("document/query.sql", "-- #QUERY_UPDATE_WEATHER_DIM");
                 try {
                     PreparedStatement ps = staging.prepareStatement(updateWeather_dim);
                     ps.executeUpdate();
