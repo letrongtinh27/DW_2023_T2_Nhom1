@@ -85,4 +85,8 @@ public class Transform extends Thread {
     public void run() {
         transform();
     }
+
+    public static void main(String[] args) {
+        new Transform().run();
+    }
 }
