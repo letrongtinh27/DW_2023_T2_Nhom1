@@ -255,9 +255,5 @@ public class DatabaseConn {
     }
 
     public static void main(String[] args) throws SQLException {
-//        DatabaseConn connection = new DatabaseConn();
-//        connection.connectToControl();
-//        connection.updateLog("1", "CRAWLED" , "crawl complete", "Hoang");
-
     }
 }
