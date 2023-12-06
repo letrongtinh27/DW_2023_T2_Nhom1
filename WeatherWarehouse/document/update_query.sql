@@ -51,3 +51,28 @@ TRUNCATE TABLE staging;
 -- #QUERY_INSERT_LOG
 INSERT INTO control.logs(config_id, `name`, `status`, file_timestamp, note, created_at, created_by) VALUES (?, ?, ?, CURRENT_DATE, ?, NOW(), ?);
 
+-- #QUERY_SELECT_EMAIL
+SELECT email FROM control.configs WHERE id = ?;
+
+-- #QUERY_SELECT_SIZE_WEATHERDATA
+SELECT table_name,
+       ROUND((DATA_LENGTH + INDEX_LENGTH) / (1024 * 1024), 2) AS TABLE_SIZE_MB
+FROM information_schema.tables
+WHERE table_schema = 'warehouse' AND table_name = 'weather_data';
+
+-- #QUERY_EXPORT_DATA_OLD
+SELECT *
+INTO OUTFILE ?
+    FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '\"'
+    LINES TERMINATED BY '\n'
+FROM warehouse.weather_data AS wd
+         INNER JOIN warehouse.date_dim AS dd ON wd.date_id = dd.id
+WHERE dd.full_date < ?;
+
+-- #QUERY_DELETE_DATA_OLD
+DELETE wd
+FROM warehouse.weather_data wd
+         INNER JOIN warehouse.date_dim dd ON dd.id = wd.date_id
+WHERE dd.full_date < ?;
+
+

@@ -96,9 +96,7 @@ public class DatabaseConn {
         List<Map<String, Object>> results = new ArrayList<>();
         Connection conn = this.controlConn;
         try {
-            // crate statement
             Statement stmt = conn.createStatement();
-            // get data from table 'student'
             rs = stmt.executeQuery(sql);
             results = rsToList(rs);
             rs.close();
@@ -204,6 +202,56 @@ public class DatabaseConn {
                 ps.setString(15, sunrise);
                 ps.setString(16, sunset);
         ps.executeUpdate();
+    }
+
+    public String getEmail(String config_id) throws SQLException {
+        String sql = this.readQueryFromFile("document/update_query.sql", "-- #QUERY_SELECT_EMAIL");
+        try (PreparedStatement ps = this.getControlConn().prepareStatement(sql)) {
+            ps.setString(1, config_id);
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Map<String, Object>> resultList = rsToList(rs);
+                if (!resultList.isEmpty()) {
+                    Object emailObj = resultList.get(0).get("email");
+                    if (emailObj != null) {
+                        return emailObj.toString();
+                    }
+                }
+            }
+        }
+        // Return null if no email is found
+        return null;
+    }
+
+    public double getTableSize() throws SQLException {
+        String sql = readQueryFromFile("document/update_query.sql", "-- #QUERY_SELECT_SIZE_WEATHERDATA");
+        try (PreparedStatement ps = this.getWarehouseConn().prepareStatement(sql)){
+            ResultSet resultSet = ps.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getDouble("TABLE_SIZE_MB");
+            }
+        }
+        return 0.0;
+    }
+
+    public void exportAndStoreOldData(String date, String path) {
+        String sql = readQueryFromFile("document/update_query.sql", "-- #QUERY_EXPORT_DATA_OLD");
+        try (PreparedStatement exportStatement = this.warehouseConn.prepareStatement(sql)) {
+            exportStatement.setString(1, path);
+            exportStatement.setString(2, date);
+            exportStatement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void deleteDataOld(String date) {
+        String sql = readQueryFromFile("document/update_query.sql", "-- #QUERY_DELETE_DATA_OLD");
+        try (PreparedStatement exportStatement = this.warehouseConn.prepareStatement(sql)) {
+            exportStatement.setString(1, date);
+            exportStatement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void main(String[] args) throws SQLException {
