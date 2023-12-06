@@ -88,7 +88,11 @@ public class Transform{
         }
     }
 
+    public void start() {
+        transform();
+    }
+
     public static void main(String[] args) {
-        new Transform().transform();
+        new Transform().start();
     }
 }

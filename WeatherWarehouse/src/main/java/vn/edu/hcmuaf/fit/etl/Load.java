@@ -155,10 +155,13 @@ public class Load {
         }
     }
 
+    public void start() {
+        loadStagingToWarehouse();
+        loadWarehouseToAggregate();
+    }
+
     public static void main(String[] args) {
-        Load load = new Load();
-        load.loadStagingToWarehouse();
-        load.loadWarehouseToAggregate();
+        new Load().start();
 
     }
 }
