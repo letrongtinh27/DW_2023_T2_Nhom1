@@ -17,15 +17,13 @@ import java.util.Map;
 
 public class Transform{
     private void transform() {
+        final String cnError = "Cannot connected!";
+        final String executeError = "Cannot Execute Query!";
+        String currentEmail = "tinhle2772002@gmail.com";
         try {
             // Kết nối control.db
             DatabaseConn dbc = new DatabaseConn();
             dbc.connectToControl();
-
-            final String cnError = "Cannot connected!";
-            final String executeError = "Cannot Execute Query!";
-
-            String currentEmail = "tinhle2772002@gmail.com";
 
             if(dbc.getControlConn()==null) {
                 SendMail.sendEmail(currentEmail, cnError, "Cannot connected to Control");
@@ -33,7 +31,7 @@ public class Transform{
             }
             // Lấy dữ liệu bảng configs có flag = 1 && status = CRAWL_COMPLETED
             String selectConfig = dbc.readQueryFromFile("document/query.sql", "-- #QUERY_SELECT_CONFIG");
-            selectConfig = selectConfig.replace("?" , "'CRAWL_COMPLETED'");
+            selectConfig = selectConfig.replace("?" , "'EXTRACT_COMPLETED'");
             List<Map<String, Object>> configs = dbc.query(selectConfig);
             for (Map<String, Object> config: configs) { // Lặp qua từng cấu hình
                 String id = config.get("id").toString();
@@ -45,34 +43,29 @@ public class Transform{
                     dbc.log(id, "Log of transform", "TRANSFORM ERROR", "Cannot connect to staging", "transform_script" );
                     SendMail.sendEmail(currentEmail, cnError, "Cannot connected to Staging");
                     dbc.updateStatusConfig("TRANSFORM_ERROR", id);
-                    return;
+                    continue;
                 }
                 // Câp nhật status trong config=TRANSFORM_START
                 dbc.updateStatusConfig("TRANSFORM_START", id);
-                // Chạy các file SQL chuẩn hóa dữ liệu (transform.sql)
-                ScriptRunner rs = new ScriptRunner(staging);
-                Reader reader;
+                // Chạy Procedure Transform
                 try {
-                    reader = new BufferedReader(new FileReader("document/transform.sql"));
-                    rs.setAutoCommit(true);
-                    rs.setStopOnError(true);
-                    rs.runScript(reader);
-                } catch (IOException e) {
+                    dbc.callTransform();
+                } catch (SQLException e) {
                     dbc.updateStatusConfig("TRANSFORM_ERROR", id);
-                    dbc.log(id, "Log of transform", "TRANSFORM ERROR", "Cannot execute transform.sql " + e.getMessage(), "transform_script" );
-                    SendMail.sendEmail(currentEmail, executeError, "Cannot execute file transform.sql in config " + e.getMessage());
-                    return;
+                    dbc.log(id, "Log of transform", "TRANSFORM ERROR", "Cannot execute PROCEDURE Transform " + e.getMessage(), "transform_script" );
+                    SendMail.sendEmail(currentEmail, executeError, "Cannot execute PROCEDURE Transform in staging " + e.getMessage());
+                    continue;
                 }
                 // Chạy SQL thêm dữ liệu weather_dim
-                String updateWeather_dim = dbc.readQueryFromFile("document/query.sql", "-- #QUERY_UPDATE_WEATHER_DIM");
+                String updateWeatherStatus_dim = dbc.readQueryFromFile("document/query.sql", "-- #QUERY_UPDATE_WEATHERSTATUS_DIM");
                 try {
-                    PreparedStatement ps = staging.prepareStatement(updateWeather_dim);
+                    PreparedStatement ps = staging.prepareStatement(updateWeatherStatus_dim);
                     ps.executeUpdate();
                 } catch (SQLException e) {
                     dbc.updateStatusConfig("TRANSFORM_ERROR", id);
-                    dbc.log(id, "Log of transform", "TRANSFORM ERROR", "Cannot execute sql insert weather_dim " + e.getMessage(), "transform_script" );
-                    SendMail.sendEmail(currentEmail, executeError, "Cannot execute insert weather_dim query in config " + e.getMessage());
-                    return;
+                    dbc.log(id, "Log of transform", "TRANSFORM ERROR", "Cannot execute sql insert weatherstatus_dim " + e.getMessage(), "transform_script" );
+                    SendMail.sendEmail(currentEmail, executeError, "Cannot execute insert weatherstatus_dim query in warehouse " + e.getMessage());
+                    continue;
                 }
                 // Câp nhật status trong config=TRANSFORM_COMPLETED
                 dbc.updateStatusConfig("TRANSFORM_COMPLETED", id);
@@ -84,19 +77,11 @@ public class Transform{
             // Đóng kết nối control.db
             dbc.closeControl();
         } catch (Exception e ){
-            throw new RuntimeException(e);
+            SendMail.sendEmail(currentEmail, cnError, "Transform error: " + e.getMessage());
         }
     }
 
     public void start() {
         transform();
-    }
-
-    public static void main(String[] args) {
-<<<<<<< HEAD
-        new Transform().run();
-=======
-        new Transform().start();
->>>>>>> d36d28e9553f41a54c2daa6090e4f72bf9bfabfa
     }
 }

@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `configs` (
                                          `location` varchar(255) DEFAULT NULL,
                                          `format` varchar(255) DEFAULT NULL,
                                          `separator` char(5) DEFAULT NULL,
-                                         `colomn_name` varchar(255) DEFAULT NULL,
+                                         column_name varchar(255) DEFAULT NULL,
                                          `email` varchar(255) DEFAULT NULL,
                                          `created_at` date NOT NULL DEFAULT current_timestamp(),
                                          `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),

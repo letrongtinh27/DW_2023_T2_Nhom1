@@ -254,6 +254,28 @@ public class DatabaseConn {
         }
     }
 
+    public void callTransform() throws SQLException {
+        String sql = readQueryFromFile("document/query.sql", "-- #CALL_TRANSFORM");
+        PreparedStatement ps = this.stagingConn.prepareStatement(sql);
+        ps.execute();
+    }
+
+    public void callLoadStagingToWarehouse() throws SQLException {
+        String sql = readQueryFromFile("document/query.sql", "-- #CALL_LOADSTAGINGTOWAREHOUSE");
+        PreparedStatement ps = this.stagingConn.prepareStatement(sql);
+        ps.execute();
+    }
+
+    public void callLoadFactToAggregate() throws SQLException {
+        String sql = readQueryFromFile("document/query.sql", "-- #CALL_LOADFACTTOAGGREGATE");
+        PreparedStatement ps = this.warehouseConn.prepareStatement(sql);
+        ps.execute();
+    }
+
     public static void main(String[] args) throws SQLException {
+        DatabaseConn conn = new DatabaseConn();
+        conn.connectToWarehouse();
+
+        conn.callLoadFactToAggregate();
     }
 }

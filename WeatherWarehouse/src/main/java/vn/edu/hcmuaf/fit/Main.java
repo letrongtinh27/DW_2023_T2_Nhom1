@@ -23,6 +23,7 @@ public class Main {
             new Extract().start();
             new Transform().start();
             new Load().start();
+            new Load().loadFactToAggregate();
 
         } catch (Exception e) {
             throw new RuntimeException(e);

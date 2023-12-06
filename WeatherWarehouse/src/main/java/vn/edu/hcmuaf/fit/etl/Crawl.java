@@ -37,6 +37,10 @@ public class Crawl {
     public void crawlData() throws IOException, SQLException {
         LocalDate currentDate = LocalDate.now();
 
+        final String cnError = "Cannot connected! ";
+        final String crawlError = "CRAWL_ERROR! ";
+        String currentEmail = "20130266@st.hcmuaf.edu.vn";
+
         DatabaseConn connection = new DatabaseConn();
         // kết nối db control
         connection.connectToControl();
@@ -45,7 +49,8 @@ public class Crawl {
 
         // K kết nối được thì gửi mail
         if(control == null) {
-            SendMail.sendEmail("20130266@st.hcmuaf.edu.vn","Error" ,"Can not connect ControlDB");
+            SendMail.sendEmail(currentEmail,cnError +  currentDate,"Can not connect ControlDB");
+            return;
         }
 
         String getConfig = connection.readQueryFromFile("document/query.sql", "-- #QUERY_SELECT_CONFIG");
@@ -57,6 +62,8 @@ public class Crawl {
         // Chạy từng dòng config
         for (Map<String, Object> config : listConfig) {
             String id = config.get("id").toString();
+            currentEmail = connection.getEmail(id);
+
             url = config.get("source_path").toString();
             location = config.get("location").toString();
             format = config.get("format").toString();
@@ -67,7 +74,7 @@ public class Crawl {
                 file.delete();
             }
 
-            String field_name = config.get("colomn_name").toString();
+            String field_name = config.get("column_name").toString();
             String separator = config.get("separator").toString();
 
             fieldNames = field_name.split(separator);
@@ -81,12 +88,15 @@ public class Crawl {
 //                    String id = config.get("id").toString();
                     // Gặp lỗi cập nhật status
                     connection.updateStatusConfig("CRAWL_ERROR",id);
-                    connection.log(id, "weather","CRAWL_ERROR" ,"Cannot crawl data by source_path","Crawler");
+                    connection.log(id, "Log of crawler","CRAWL_ERROR" ,"Cannot crawl data by source_path " + e.getMessage(),"Crawler");
+                    SendMail.sendEmail(currentEmail, crawlError + currentDate, "Cannot crawl data by source_path " + "\n Exception: " + e.getMessage());
                     return;
                 }
             }
-            connection.updateStatusConfig("CRAWLED",id);
-            connection.log(id, "weather","CRAWLED" ,"Crawl complete","Crawler");
+            connection.updateStatusConfig("CRAWL_COMPLETED",id);
+            connection.log(id, "Log of crawler","CRAWL_COMPLETED" ,"Crawl complete","Crawler");
+            SendMail.sendEmail(currentEmail, "CRAWLED COMPLETED! " + currentDate, "Crawler done!" +currentDate);
+
         }
 
         // Đóng kết nối control
@@ -213,6 +223,10 @@ public class Crawl {
 
     public static void main(String[] args) throws IOException, SQLException {
         new Crawl().crawlData();
+    }
+
+    public void start() throws SQLException, IOException {
+        crawlData();
     }
 }
 
