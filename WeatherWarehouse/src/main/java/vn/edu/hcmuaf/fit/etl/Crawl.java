@@ -48,7 +48,7 @@ public class Crawl {
             SendMail.sendEmail("20130266@st.hcmuaf.edu.vn","Error" ,"Can not connect ControlDB");
         }
 
-        String getConfig = connection.readQueryFromFile("document/update_query.sql", "-- #QUERY_SELECT_CONFIG");
+        String getConfig = connection.readQueryFromFile("document/query.sql", "-- #QUERY_SELECT_CONFIG");
         // Lấy dữ liệu config có flag = 1 và status = repair
         getConfig = getConfig.replace("?", "'REPAIRED'");
 

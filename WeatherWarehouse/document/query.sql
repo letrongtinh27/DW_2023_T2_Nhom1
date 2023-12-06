@@ -4,8 +4,8 @@ UPDATE control.configs SET status = ? WHERE id = ?;
 -- #QUERY_SELECT_CONFIG
 SELECT * FROM control.configs WHERE flag = '1' AND status = ?;
 
--- #QUERY_UPDATE_WEATHER_DIM
-INSERT IGNORE INTO warehouse.weather_dim (status_name, description, start_date, end_date, is_current, previous_status_id)
+-- #QUERY_UPDATE_weatherstatus_dim
+INSERT IGNORE INTO warehouse.weatherstatus_dim (status_name, description, start_date, end_date, is_current, previous_status_id)
 SELECT
     status,
     status AS description,
@@ -13,7 +13,7 @@ SELECT
     (SELECT MAX(full_date) FROM warehouse.date_dim) AS end_date,
     1 AS is_current,
     0 AS previous_status_id
-FROM staging.staging s LEFT JOIN warehouse.weather_dim wd ON s.status = wd.status_name
+FROM staging.staging s LEFT JOIN warehouse.weatherstatus_dim wd ON s.status = wd.status_name
 WHERE s.status IS NOT NULL AND wd.status_name IS NULL;
 
 -- #QUERY_SELECT_LOGS
@@ -29,8 +29,8 @@ SET
 WHERE id = ?;
 
 -- #QUERY_LOAD_STAGING_TO_WAREHOUSE
-INSERT IGNORE INTO warehouse.weather_dim (status_name, description, start_date, end_date,
-                                          is_current, previous_status_id)
+INSERT IGNORE INTO warehouse.weatherstatus_dim (status_name, description, start_date, end_date,
+                                                is_current, previous_status_id)
 SELECT
     status,
     status AS description,
@@ -39,7 +39,7 @@ SELECT
     1 AS is_current,
     0 AS previous_status_id
 FROM staging.staging s
-         LEFT JOIN warehouse.weather_dim wd ON s.status = wd.status_name
+         LEFT JOIN warehouse.weatherstatus_dim wd ON s.status = wd.status_name
 WHERE s.status IS NOT NULL AND wd.status_name IS NULL;
 
 -- #QUERY_LOAD_TO_STAGING
@@ -58,20 +58,20 @@ SELECT email FROM control.configs WHERE id = ?;
 SELECT table_name,
        ROUND((DATA_LENGTH + INDEX_LENGTH) / (1024 * 1024), 2) AS TABLE_SIZE_MB
 FROM information_schema.tables
-WHERE table_schema = 'warehouse' AND table_name = 'weather_data';
+WHERE table_schema = 'warehouse' AND table_name = 'weather_fact';
 
 -- #QUERY_EXPORT_DATA_OLD
 SELECT *
 INTO OUTFILE ?
     FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '\"'
     LINES TERMINATED BY '\n'
-FROM warehouse.weather_data AS wd
+FROM warehouse.weather_fact AS wd
          INNER JOIN warehouse.date_dim AS dd ON wd.date_id = dd.id
 WHERE dd.full_date < ?;
 
 -- #QUERY_DELETE_DATA_OLD
 DELETE wd
-FROM warehouse.weather_data wd
+FROM warehouse.weather_fact wd
          INNER JOIN warehouse.date_dim dd ON dd.id = wd.date_id
 WHERE dd.full_date < ?;
 
