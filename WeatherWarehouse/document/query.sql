@@ -4,7 +4,7 @@ UPDATE control.configs SET status = ? WHERE id = ?;
 -- #QUERY_SELECT_CONFIG
 SELECT * FROM control.configs WHERE flag = '1' AND status = ?;
 
--- #QUERY_UPDATE_weatherstatus_dim
+-- #QUERY_UPDATE_WEATHERSTATUS_DIM
 INSERT IGNORE INTO warehouse.weatherstatus_dim (status_name, description, start_date, end_date, is_current, previous_status_id)
 SELECT
     status,
@@ -75,4 +75,11 @@ FROM warehouse.weather_fact wd
          INNER JOIN warehouse.date_dim dd ON dd.id = wd.date_id
 WHERE dd.full_date < ?;
 
+-- #CALL_TRANSFORM
+CALL staging.Transform();
 
+-- #CALL_LOADSTAGINGTOWAREHOUSE
+CALL staging.LoadStagingToWarehouse();
+
+-- #CALL_LOADFACTTOAGGREGATE
+CALL warehouse.LoadFactToAggregate();
