@@ -1,13 +1,8 @@
 package vn.edu.hcmuaf.fit.etl;
 
-import org.apache.ibatis.jdbc.ScriptRunner;
 import vn.edu.hcmuaf.fit.dbcnn.DatabaseConn;
 import vn.edu.hcmuaf.fit.util.SendMail;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
