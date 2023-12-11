@@ -24,6 +24,7 @@ public class Main {
             new Transform().start();
             new Load().start();
             new Load().loadFactToAggregate();
+            new Load().loadAggregateToDatamart();
 
         } catch (Exception e) {
             throw new RuntimeException(e);

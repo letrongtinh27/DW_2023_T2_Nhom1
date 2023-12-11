@@ -23,6 +23,15 @@ public class DBProperties {
     public static String getWarehouseURL(){return properties.get("warehouse.url").toString();};
     public static String getWarehouseUsername(){return properties.get("warehouse.username").toString();};
     public static String getWarehousePassword(){return properties.get("warehouse.password").toString();};
+    public static String getDatamartURL(){
+        return properties.get("datamart.url").toString();
+    }
+    public static String getDatamartUsername() {
+        return properties.get("datamart.username").toString();
+    }
+    public static String getDatamartPassword() {
+        return properties.get("datamart.password").toString();
+    }
 
 
 
