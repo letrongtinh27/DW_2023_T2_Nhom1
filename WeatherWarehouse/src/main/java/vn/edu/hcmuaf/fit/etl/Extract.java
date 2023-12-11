@@ -62,6 +62,7 @@ public class Extract {
                     }
 
                     try (FileInputStream excelFile = new FileInputStream(config.get("location").toString() + currentDate + config.get("format").toString());
+
                          Workbook workbook = new XSSFWorkbook(excelFile)) {
 
                         Sheet sheet = workbook.getSheetAt(0);

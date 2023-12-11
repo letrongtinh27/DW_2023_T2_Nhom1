@@ -11,22 +11,24 @@ import java.io.Reader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
 
 public class Transform{
     private void transform() {
-        final String cnError = "Cannot connected!";
-        final String executeError = "Cannot Execute Query!";
+        final String cnError = "Cannot connected! ";
+        final String executeError = "Cannot Execute Query! ";
         String currentEmail = "tinhle2772002@gmail.com";
+        LocalDate currentDate = LocalDate.now();
         try {
             // Kết nối control.db
             DatabaseConn dbc = new DatabaseConn();
             dbc.connectToControl();
 
             if(dbc.getControlConn()==null) {
-                SendMail.sendEmail(currentEmail, cnError, "Cannot connected to Control");
+                SendMail.sendEmail(currentEmail, cnError + currentDate, "Cannot connected to Control");
                 return;
             }
             // Lấy dữ liệu bảng configs có flag = 1 && status = CRAWL_COMPLETED
@@ -41,7 +43,7 @@ public class Transform{
                 Connection staging = dbc.getStagingConn();
                 if(staging==null) {
                     dbc.log(id, "Log of transform", "TRANSFORM ERROR", "Cannot connect to staging", "transform_script" );
-                    SendMail.sendEmail(currentEmail, cnError, "Cannot connected to Staging");
+                    SendMail.sendEmail(currentEmail, cnError + currentDate, "Cannot connected to Staging");
                     dbc.updateStatusConfig("TRANSFORM_ERROR", id);
                     continue;
                 }
@@ -53,7 +55,7 @@ public class Transform{
                 } catch (SQLException e) {
                     dbc.updateStatusConfig("TRANSFORM_ERROR", id);
                     dbc.log(id, "Log of transform", "TRANSFORM ERROR", "Cannot execute PROCEDURE Transform " + e.getMessage(), "transform_script" );
-                    SendMail.sendEmail(currentEmail, executeError, "Cannot execute PROCEDURE Transform in staging " + e.getMessage());
+                    SendMail.sendEmail(currentEmail, executeError + currentDate, "Cannot execute PROCEDURE Transform in staging " + e.getMessage());
                     continue;
                 }
                 // Chạy SQL thêm dữ liệu weather_dim
@@ -64,20 +66,20 @@ public class Transform{
                 } catch (SQLException e) {
                     dbc.updateStatusConfig("TRANSFORM_ERROR", id);
                     dbc.log(id, "Log of transform", "TRANSFORM ERROR", "Cannot execute sql insert weatherstatus_dim " + e.getMessage(), "transform_script" );
-                    SendMail.sendEmail(currentEmail, executeError, "Cannot execute insert weatherstatus_dim query in warehouse " + e.getMessage());
+                    SendMail.sendEmail(currentEmail, executeError + currentDate, "Cannot execute insert weatherstatus_dim query in warehouse " + e.getMessage());
                     continue;
                 }
                 // Câp nhật status trong config=TRANSFORM_COMPLETED
                 dbc.updateStatusConfig("TRANSFORM_COMPLETED", id);
                 dbc.log(id, "Log of transform", "TRANSFORM COMPLETED", "Transform done!", "transform_script");
-                SendMail.sendEmail(currentEmail, "Warehouse TRANSFORM COMPLETED!", "Transform done in config_id: " + config.get("id").toString());
+                SendMail.sendEmail(currentEmail, "Warehouse TRANSFORM COMPLETED! " + currentDate, "Transform done in config_id: " + config.get("id").toString());
                 // Đóng kết nối staging.db
                 dbc.closeStaging();
             }
             // Đóng kết nối control.db
             dbc.closeControl();
         } catch (Exception e ){
-            SendMail.sendEmail(currentEmail, cnError, "Transform error: " + e.getMessage());
+            SendMail.sendEmail(currentEmail, cnError + currentDate, "Transform error: " + e.getMessage());
         }
     }
 
