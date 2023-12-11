@@ -64,6 +64,157 @@ CREATE TABLE IF NOT EXISTS `logs` (
 -- Data exporting was unselected.
 
 
+-- Dumping database structure for datamart
+DROP DATABASE IF EXISTS `datamart`;
+CREATE DATABASE IF NOT EXISTS `datamart` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
+USE `datamart`;
+
+-- Dumping structure for table datamart.home_weather_mart
+DROP TABLE IF EXISTS `home_weather_mart`;
+CREATE TABLE IF NOT EXISTS `home_weather_mart` (
+                                                   `id` int(11) NOT NULL AUTO_INCREMENT,
+                                                   `date` date NOT NULL,
+                                                   `location` varchar(255) NOT NULL,
+                                                   `average_temp` float NOT NULL DEFAULT 0,
+                                                   `status` varchar(255) NOT NULL,
+                                                   `pressure` float NOT NULL,
+                                                   `wind` float NOT NULL,
+                                                   `sunrise` time NOT NULL,
+                                                   `sunset` time NOT NULL,
+                                                   PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=512 DEFAULT CHARSET=utf8mb4;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for procedure datamart.LoadAggregateToHomeWeatherMart
+DROP PROCEDURE IF EXISTS `LoadAggregateToHomeWeatherMart`;
+DELIMITER //
+CREATE PROCEDURE `LoadAggregateToHomeWeatherMart`()
+BEGIN
+    -- #QUERY_UPDATE_home_weather_mart
+    UPDATE `datamart`.home_weather_mart hwm
+        JOIN `datamart`.location_mart lm ON lm.location_name = hwm.location
+        JOIN warehouse.`aggregate` ag ON lm.dim_name = ag.location
+    SET
+        hwm.`average_temp` = ag.`average_temp`,
+        hwm.`status` = ag.`status`,
+        hwm.`pressure` = ag.`pressure`,
+        hwm.`wind` = ag.`wind`,
+        hwm.`sunrise` = ag.`sunrise`,
+        hwm.`sunset` = ag.`sunset`
+    WHERE hwm.id IS NOT NULL AND hwm.location = lm.location_name AND hwm.date = ag.date;
+    -- #QUERY_INSERT_home_weather_mart
+    INSERT INTO `datamart`.home_weather_mart(`date`, `location`, `average_temp`, `status`, `pressure`, `wind`, `sunrise`, `sunset`)
+    SELECT
+        ag.`date`,
+        lm.`location_name`,
+        ag.`average_temp`,
+        ag.`status`,
+        ag.`pressure`,
+        ag.`wind`,
+        ag.`sunrise`,
+        ag.`sunset`
+    FROM
+        warehouse.`aggregate` ag
+            JOIN `datamart`.location_mart lm ON lm.`dim_name` = ag.`location`
+            LEFT JOIN `datamart`.home_weather_mart hwm2 ON lm.location_name = hwm2.location
+    WHERE  hwm2.id IS NULL;
+END//
+DELIMITER ;
+
+-- Dumping structure for procedure datamart.LoadAggregateToLocationWeatherMart
+DROP PROCEDURE IF EXISTS `LoadAggregateToLocationWeatherMart`;
+DELIMITER //
+CREATE PROCEDURE `LoadAggregateToLocationWeatherMart`()
+BEGIN
+    -- #QUERY_UPDATE_home_weather_mart
+    UPDATE `datamart`.location_weather_mart lwm
+        JOIN `datamart`.location_mart lm ON lm.location_name = lwm.location
+        JOIN warehouse.`aggregate` ag ON lm.dim_name = ag.location
+    SET
+        lwm.`status` = ag.`status`,
+        lwm.low = ag.low,
+        lwm.high = ag.high,
+        lwm.humidity = ag.humidity,
+        lwm.precipitation = ag.precipitation,
+        lwm.`average_temp` = ag.`average_temp`,
+        lwm.`day` = ag.`day`,
+        lwm.night = ag.night,  -- Sửa tên cột từ high thành night
+        lwm.morning = ag.morning,
+        lwm.evening = ag.evening,
+        lwm.`pressure` = ag.`pressure`,
+        lwm.`wind` = ag.`wind`,
+        lwm.`sunrise` = ag.`sunrise`,
+        lwm.`sunset` = ag.`sunset`
+    WHERE
+        lwm.id IS NOT NULL AND lwm.location = lm.location_name AND lwm.`date` = ag.`date`;
+
+    -- #QUERY_INSERT_home_weather_mart
+    INSERT INTO `datamart`.location_weather_mart(`date`, `location`, `status`,`low`, `high`, `humidity`, `precipitation`, `average_temp`, `day`, `night`, `morning`, `evening`, `pressure`, `wind`, `sunrise`, `sunset`)
+    SELECT
+        ag.`date`,
+        lm.location_name,
+        ag.`status`,
+        ag.low,
+        ag.high,
+        ag.humidity,
+        ag.precipitation,
+        ag.average_temp,
+        ag.`day`,
+        ag.night,  -- Sửa tên cột từ high thành night
+        ag.morning,
+        ag.evening,
+        ag.pressure,
+        ag.wind,
+        ag.sunrise,
+        ag.sunset
+    FROM
+        warehouse.`aggregate` ag
+            JOIN `datamart`.location_mart lm ON lm.`dim_name` = ag.`location`
+            LEFT JOIN `datamart`.location_weather_mart lwm2 ON lm.location_name = lwm2.location
+    WHERE
+        lwm2.id IS NULL;
+END//
+DELIMITER ;
+
+-- Dumping structure for table datamart.location_mart
+DROP TABLE IF EXISTS `location_mart`;
+CREATE TABLE IF NOT EXISTS `location_mart` (
+                                               `id` int(11) NOT NULL AUTO_INCREMENT,
+                                               `location_name` varchar(255) NOT NULL,
+                                               `dim_name` varchar(255) NOT NULL,
+                                               `area` varchar(255) NOT NULL,
+                                               PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=64 DEFAULT CHARSET=utf8mb4;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table datamart.location_weather_mart
+DROP TABLE IF EXISTS `location_weather_mart`;
+CREATE TABLE IF NOT EXISTS `location_weather_mart` (
+                                                       `id` int(11) NOT NULL AUTO_INCREMENT,
+                                                       `date` date NOT NULL,
+                                                       `location` varchar(255) NOT NULL,
+                                                       `status` varchar(255) NOT NULL,
+                                                       `low` int(11) NOT NULL,
+                                                       `high` int(11) NOT NULL,
+                                                       `humidity` int(11) NOT NULL,
+                                                       `precipitation` float NOT NULL,
+                                                       `average_temp` float NOT NULL,
+                                                       `day` int(11) NOT NULL,
+                                                       `night` int(11) NOT NULL,
+                                                       `morning` int(11) NOT NULL,
+                                                       `evening` int(11) NOT NULL,
+                                                       `pressure` float NOT NULL,
+                                                       `wind` float NOT NULL,
+                                                       `sunrise` time NOT NULL,
+                                                       `sunset` time NOT NULL,
+                                                       PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=512 DEFAULT CHARSET=utf8mb4;
+
+-- Data exporting was unselected.
+
+
 -- Dumping database structure for staging
 DROP DATABASE IF EXISTS `staging`;
 CREATE DATABASE IF NOT EXISTS `staging` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
