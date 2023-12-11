@@ -17,7 +17,7 @@
     }
 </style>
 <body>
-<a href="index.html" class="back">
+<a href="index.jsp" class="back">
     <i class="fa-solid fa-circle-chevron-left"></i>
 </a>
 <h1>Thời tiết Hà nội</h1>
