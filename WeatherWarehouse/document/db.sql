@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `configs` (
                                          `location` varchar(255) DEFAULT NULL,
                                          `format` varchar(255) DEFAULT NULL,
                                          `separator` char(5) DEFAULT NULL,
-                                         column_name varchar(255) DEFAULT NULL,
+                                         `column_name` varchar(255) DEFAULT NULL,
                                          `email` varchar(255) DEFAULT NULL,
                                          `created_at` date NOT NULL DEFAULT current_timestamp(),
                                          `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `configs` (
                                          `flag` tinyint(4) DEFAULT NULL,
                                          `status` varchar(255) DEFAULT NULL,
                                          PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
 
 -- Data exporting was unselected.
 
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS `logs` (
                                       PRIMARY KEY (`id`),
                                       KEY `config_id` (`config_id`),
                                       CONSTRAINT `logs_ibfk_1` FOREIGN KEY (`config_id`) REFERENCES `configs` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4;
 
 -- Data exporting was unselected.
 
@@ -101,8 +101,7 @@ BEGIN
                      JOIN warehouse.weatherstatus_dim ws ON st.status = ws.status_name
         ) AS st_data ON wd.location_id = st_data.location_id
             AND wd.date_id = st_data.date_id
-            AND wd.status_id = st_data.status_id
-        JOIN warehouse.date_dim dd ON wd.effective_date = dd.id
+        JOIN warehouse.date_dim dd ON wd.expiration_date = dd.id
     SET
         wd.low = st_data.low,
         wd.high = st_data.high,
@@ -123,7 +122,7 @@ BEGIN
 
     -- #QUERY_INSERT_WAREHOUSE_DATA
     INSERT INTO warehouse.weather_fact (location_id, date_id, status_id, low, high, humidity, precipitation, average_temp, day, night, morning, evening, pressure,
-                                        wind, sunrise, sunset, effective_date)
+                                        wind, sunrise, sunset, expiration_date)
     SELECT
         ld.id AS location_id,
         dd.id AS date_id,
@@ -141,7 +140,7 @@ BEGIN
         st.wind,
         st.sunrise,
         st.sunset,
-        dd.id AS effective_date
+        dd.id AS expiration_date
     FROM
         staging.staging st
             JOIN warehouse.location_dim ld ON st.location = ld.location_name
@@ -176,7 +175,7 @@ CREATE TABLE IF NOT EXISTS `staging` (
                                          `sunrise` time DEFAULT NULL,
                                          `sunset` time DEFAULT NULL,
                                          PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=315 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=316 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- Data exporting was unselected.
 
@@ -397,7 +396,7 @@ CREATE TABLE IF NOT EXISTS `weather_fact` (
                                               `wind` float DEFAULT NULL,
                                               `sunrise` time DEFAULT NULL,
                                               `sunset` time DEFAULT NULL,
-                                              `effective_date` int(11) DEFAULT NULL,
+                                              `expiration_date` int(11) DEFAULT NULL,
                                               PRIMARY KEY (`id`),
                                               KEY `location_id` (`location_id`),
                                               KEY `date_id` (`date_id`),
@@ -405,7 +404,7 @@ CREATE TABLE IF NOT EXISTS `weather_fact` (
                                               CONSTRAINT `weather_fact_ibfk_1` FOREIGN KEY (`location_id`) REFERENCES `location_dim` (`id`),
                                               CONSTRAINT `weather_fact_ibfk_2` FOREIGN KEY (`date_id`) REFERENCES `date_dim` (`id`),
                                               CONSTRAINT `weather_fact_ibfk_3` FOREIGN KEY (`status_id`) REFERENCES `weatherstatus_dim` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=512 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1276 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- Data exporting was unselected.
 
@@ -414,5 +413,3 @@ CREATE TABLE IF NOT EXISTS `weather_fact` (
 /*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40111 SET SQL_NOTES=IFNULL(@OLD_SQL_NOTES, 1) */;
-
-
