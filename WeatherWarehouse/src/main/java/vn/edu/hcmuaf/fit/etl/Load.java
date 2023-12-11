@@ -3,9 +3,6 @@ package vn.edu.hcmuaf.fit.etl;
 import vn.edu.hcmuaf.fit.dbcnn.DatabaseConn;
 import vn.edu.hcmuaf.fit.util.SendMail;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -51,7 +48,7 @@ public class Load {
                     SendMail.sendEmail(currentEmail, cnError + currentDate, "Cannot connected to Warehouse");
                     continue;
                 }
-                // Câp nhật status trong config=LOAD_START
+                // Câp nhật status trong config=LOAD_WAREHOUSE_START
                 dbc.updateStatusConfig("LOAD_WAREHOUSE_START", id);
 
                 // Chạy Procedure LoadStagingToWarehouse
@@ -63,7 +60,7 @@ public class Load {
                     SendMail.sendEmail(currentEmail, executeError + currentDate, "Cannot call PROCEDURE LoadStagingToWarehouse in staging " + e.getMessage());
                     continue;
                 }
-                // Câp nhật status trong config=LOAD_COMPLETED
+                // Câp nhật status trong config=LOAD_WAREHOUSE_COMPLETED
                 dbc.updateStatusConfig("LOAD_WAREHOUSE_COMPLETED", id);
                 dbc.log(id, "Log of load", "LOAD WAREHOUSE COMPLETED", "Load staging to warehouse done!", "Load_script");
                 SendMail.sendEmail(currentEmail, "LOAD STAGING TO WAREHOUSE COMPLETED! " + currentDate, "Load done in config_id: " + config.get("id").toString());
@@ -106,7 +103,7 @@ public class Load {
                     SendMail.sendEmail(currentEmail, cnError + currentDate, "Cannot connected to Warehouse");
                     continue;
                 }
-                // Câp nhật status trong config=LOAD_START
+                // Câp nhật status trong config=LOAD_AGGREGATE_START
                 dbc.updateStatusConfig("LOAD_AGGREGATE_START", id);
                 // Chạy Procedure LoadFactToAggregate
                 try {
@@ -119,16 +116,83 @@ public class Load {
                     SendMail.sendEmail(currentEmail, executeError + currentDate, "Cannot call PROCEDURE LoadFactToAggregate in warehouse" + "\n Exception: " + e.getMessage());
                     continue;
                 }
-                // Câp nhật status trong config=LOAD_COMPLETED
+                // Câp nhật status trong config=LOAD_AGGREGATE_COMPLETED
                 dbc.updateStatusConfig("LOAD_AGGREGATE_COMPLETED", id);
-                System.out.println("LOAD_AGGREGATE_COMPLETED");
-
                 dbc.log(id, "Log of load", "LOAD AGGREGATE COMPLETE", "Load warehouse to aggregate done!", "Load_script");
                 SendMail.sendEmail(currentEmail, "LOAD WAREHOUSE TO AGGREGATE COMPLETED! " + currentDate, "Load done in config_id: " + config.get("id").toString());
             }
             // Đóng kết nối
             dbc.closeControl();
             dbc.closeWarehouse();
+        } catch (Exception e) {
+            SendMail.sendEmail(currentEmail, executeError + currentDate, new RuntimeException(e).toString());
+        }
+    }
+    public void loadAggregateToDatamart() {
+        final String cnError = "Cannot connected! ";
+        final String executeError = "Cannot Execute Query! ";
+        String currentEmail = "tinhle2772002@gmail.com";
+        LocalDate currentDate = LocalDate.now();
+        try {
+            DatabaseConn databaseConn = new DatabaseConn();
+            // Kết nối control
+            databaseConn.connectToControl();
+            Connection control = databaseConn.getControlConn();
+            if(control==null) {
+                SendMail.sendEmail(currentEmail, cnError + currentDate, "Cannot connected to Control");
+                return;
+            }
+            String selectConfig = databaseConn.readQueryFromFile("document/query.sql", "-- #QUERY_SELECT_CONFIG");
+            selectConfig = selectConfig.replace("?" , "'LOAD_AGGREGATE_COMPLETED'");
+            List<Map<String, Object>> configs = databaseConn.query(selectConfig);
+
+            for (Map<String, Object> config : configs) {
+                String id = config.get("id").toString();
+                currentEmail = databaseConn.getEmail(id);
+
+                databaseConn.connectToWarehouse();
+                Connection warehouse = databaseConn.getWarehouseConn();
+                databaseConn.connectToDatamart();
+                Connection datamart = databaseConn.getDatamartConn();
+                // Kết nối warehouse
+                if(warehouse==null) {
+                    databaseConn.updateStatusConfig("LOAD_DATAMART_ERROR", id);
+                    databaseConn.log(id, "Log of load", "LOAD ERROR", "Cannot connect to warehouse", "load_script");
+                    SendMail.sendEmail(currentEmail, cnError + currentDate, "Cannot connected to Warehouse");
+                    continue;
+                }
+                // Kết nối datamart
+                if(datamart==null) {
+                    databaseConn.updateStatusConfig("LOAD_DATAMART_ERROR", id);
+                    databaseConn.log(id, "Log of load", "LOAD ERROR", "Cannot connect to datamart", "load_script");
+                    SendMail.sendEmail(currentEmail, cnError + currentDate, "Cannot connected to Datamart");
+                    continue;
+                }
+                // Cập nhật status=LOAD_DATAMART_START
+                databaseConn.updateStatusConfig("LOAD_DATAMART_START", id);
+                try {
+                    // Call LoadAggregateToHomeWeatherMart
+                    databaseConn.callLoadAggregateToHomeWeatherMart();
+                } catch (Exception e) {
+                    databaseConn.updateStatusConfig("LOAD_DATAMART_ERROR", id);
+                    databaseConn.log(id, "Log of load", "LOAD ERROR", "Cannot call PROCEDURE LoadAggregateToHomeWeatherMart in datamart", "load_script");
+                    SendMail.sendEmail(currentEmail, executeError + currentDate, "Cannot call PROCEDURE LoadAggregateToHomeWeatherMart in datamart" + "\n Exception: " + e.getMessage());
+                    continue;
+                }
+                try {
+                    // Call LoadAggregateToLocationWeatherMart
+                    databaseConn.callLoadAggregateToLocationWeatherMart();
+                } catch (Exception e) {
+                    databaseConn.updateStatusConfig("LOAD_DATAMART_ERROR", id);
+                    databaseConn.log(id, "Log of load", "LOAD ERROR", "Cannot call PROCEDURE LoadAggregateToLocationWeatherMart in datamart", "load_script");
+                    SendMail.sendEmail(currentEmail, executeError + currentDate, "Cannot call PROCEDURE LoadAggregateToLocationWeatherMart in datamart" + "\n Exception: " + e.getMessage());
+                    continue;
+                }
+                databaseConn.updateStatusConfig("REPAIRED", id);
+                databaseConn.log(id, "Log of load", "LOAD DATAMART COMPLETE", "Load aggregate to datamart done!", "Load_script");
+                SendMail.sendEmail(currentEmail, "LOAD AGGREGATE TO DATAMART COMPLETED! " + currentDate, "Load done in config_id: " + config.get("id").toString());
+            }
+
         } catch (Exception e) {
             SendMail.sendEmail(currentEmail, executeError + currentDate, new RuntimeException(e).toString());
         }

@@ -83,3 +83,9 @@ CALL staging.LoadStagingToWarehouse();
 
 -- #CALL_LOADFACTTOAGGREGATE
 CALL warehouse.LoadFactToAggregate();
+
+-- #CALL_LOADAGGREGATETOHOMEWEATHERMART
+CALL `datamart`.LoadAggregateToHomeWeatherMart;
+
+-- #CALL_LOADAGGREGATETOLOCATIONWEATERMART
+CALL `datamart`.LoadAggregateToLocationWeatherMart;
