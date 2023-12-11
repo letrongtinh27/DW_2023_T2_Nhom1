@@ -29,6 +29,7 @@ public class Crawl {
     static String url = "";
     static String location = "";
     static String format ="";
+    static String name ="";
     static String[] fieldNames = null;
 
     static String[] provinces = { "an-giang", "ba-ria-vung-tau", "bac-lieu", "bac-kan", "bac-giang", "bac-ninh", "ben-tre", "binh-duong", "binh-dinh", "binh-phuoc", "binh-thuan", "ca-mau", "cao-bang", "can-tho", "da-nang", "dak-lak", "dak-nong", "dien-bien", "dong-nai", "dong-thap", "gia-lai", "ha-giang", "ha-nam", "ha-noi", "ha-tinh", "hai-duong", "hai-phong", "hoa-binh", "ho-chi-minh", "hau-giang", "hung-yen", "khanh-hoa", "kien-giang", "kon-tum", "lai-chau", "lao-cai", "lang-son", "lam-dong", "long-an", "nam-dinh", "nghe-an", "ninh-binh", "ninh-thuan", "phu-tho", "phu-yen", "quang-binh", "quang-nam", "quang-ngai", "quang-ninh", "quang-tri", "soc-trang", "son-la", "tay-ninh", "thai-binh", "thai-nguyen", "thanh-hoa", "thua-thien-hue", "tien-giang", "tra-vinh", "tuyen-quang", "vinh-long", "vinh-phuc", "yen-bai"};
@@ -67,8 +68,9 @@ public class Crawl {
             url = config.get("source_path").toString();
             location = config.get("location").toString();
             format = config.get("format").toString();
+            name = config.get("name").toString();
 
-            File file = new File(location + currentDate +  format);
+            File file = new File(location + name + currentDate +  format);
             // Nếu file đã tồn tại thì xóa đi để crawl dữ liệu mới
             if (file.exists()) {
                 file.delete();
@@ -96,8 +98,8 @@ public class Crawl {
             connection.updateStatusConfig("CRAWL_COMPLETED",id);
             connection.log(id, "Log of crawler","CRAWL_COMPLETED" ,"Crawl complete","Crawler");
             SendMail.sendEmail(currentEmail, "CRAWLED COMPLETED! " + currentDate, "Crawler done!" +currentDate);
-
         }
+
 
         // Đóng kết nối control
         connection.closeControl();

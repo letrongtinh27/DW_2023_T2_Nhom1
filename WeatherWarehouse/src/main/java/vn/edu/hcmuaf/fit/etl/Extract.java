@@ -6,6 +6,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import vn.edu.hcmuaf.fit.dbcnn.DatabaseConn;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -61,8 +62,11 @@ public class Extract {
                         continue;
                     }
 
-                    try (FileInputStream excelFile = new FileInputStream(config.get("location").toString() + currentDate + config.get("format").toString());
-
+                    String locationFile = config.get("location").toString();
+                    String name = config.get("name").toString();
+                    String format = config.get("format").toString();
+                    File file = new File(locationFile + name + currentDate + format);
+                    try (FileInputStream excelFile = new FileInputStream(file);
                          Workbook workbook = new XSSFWorkbook(excelFile)) {
 
                         Sheet sheet = workbook.getSheetAt(0);
@@ -106,7 +110,7 @@ public class Extract {
                     connection.updateStatusConfig("EXTRACT_COMPLETED",id);
                     connection.log(id, "Log of extract", "EXTRACT_COMPLETED", "EXTRACT COMPLETED!","extract_script");
                     SendMail.sendEmail(currentEmail,"Extract Complete!" + currentDate ,"Extract done! ");
-
+                    file.deleteOnExit();
                     connection.closeStaging();
 
                 }
