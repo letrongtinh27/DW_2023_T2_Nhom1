@@ -1,0 +1,2 @@
+-- #QUERY_SELECT_ALL_LOCATION
+SELECT * FROM location_mart;

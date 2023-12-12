@@ -1,3 +1,6 @@
+<%@ page import="com.example.mockup.model.Location" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.util.Arrays" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
@@ -13,18 +16,25 @@
     </div>
     <div class="card-body">
         <div class="cover-content cover-content-bottom active" id="child-item-childrens">
+
             <div class="row">
+                <%
+                    List<Location> locations = (List<Location>) request.getAttribute("location");
+                    for (Location location : locations) {
+                %>
                 <div class="col-12 col-md-4">
                     <div class="item-link my-2 p-1">
-                        <h3 class="font-h3">
-                            <a href="" title="Hà Nội">
+                        <h4 class="font-h3">
+                            <a href="weather-detail?name=<%=location.getDim_name()%>" title=" <%=location.getLocation_name()%>" target="_blank">
                                 <i class="bi bi-arrow-right-short"></i>
-                                Hà Nội
+                                <%=location.getLocation_name()%>
                             </a>
-                        </h3>
+                        </h4>
                     </div>
                 </div>
+                <%}%>
             </div>
+
         </div>
     </div>
 </div>
