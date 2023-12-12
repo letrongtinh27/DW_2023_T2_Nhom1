@@ -1,0 +1,72 @@
+package com.example.mockup.model;
+
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
+
+public class Weather {
+    @Getter
+    @Setter
+    @NonNull
+    private String date;
+    @NonNull
+    @Getter
+    @Setter
+    private String location;
+    @NonNull
+    @Getter
+    @Setter
+    private String average_temp;
+    @NonNull
+    @Getter
+    @Setter
+    private String high;
+    @NonNull
+    @Getter
+    @Setter
+    private String low;
+    @NonNull
+    @Getter
+    @Setter
+    private String humidity;
+    @NonNull
+    @Getter
+    @Setter
+    private String precipitation;
+    @NonNull
+    @Getter
+    @Setter
+    private String status;
+    @NonNull
+    @Getter
+    @Setter
+    private String day;
+    @NonNull
+    @Getter
+    @Setter
+    private String night;
+    @NonNull
+    @Getter
+    @Setter
+    private String morning;
+    @NonNull
+    @Getter
+    @Setter
+    private String evening;
+    @NonNull
+    @Getter
+    @Setter
+    private String pressure;
+    @NonNull
+    @Getter
+    @Setter
+    private String wind;
+    @NonNull
+    @Getter
+    @Setter
+    private String sunrise;
+    @NonNull
+    @Getter
+    @Setter
+    private String sunset;
+}

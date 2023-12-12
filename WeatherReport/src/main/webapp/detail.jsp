@@ -1,3 +1,6 @@
+<%@ page import="com.example.mockup.model.Weather" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.time.LocalDate" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
@@ -17,27 +20,60 @@
     }
 </style>
 <body>
-<a href="index.jsp" class="back">
+<a href="/" class="back">
     <i class="fa-solid fa-circle-chevron-left"></i>
 </a>
-<h1>Thời tiết Hà nội</h1>
+<%
+    List<Weather> weathers = (List<Weather>) request.getAttribute("weather");
+    LocalDate currentDate = LocalDate.now();
+    if(weathers != null) {
+%>
+<h1>Thời tiết <%=weathers.get(0).getLocation()%></h1>
+
+<%
+    for (Weather weather : weathers) {
+%>
 <div class="weather-date shadow-sm">
     <h2 class="font-size-18 weather-date-title pt-2" style="text-align: center;">
-        <span>Hiện tại</span></h2>
+        <span><%=weather.getDate().equals(currentDate.toString()) ? "Hiện tại" : weather.getDate()%></span></h2>
     <div class="row">
         <div class="col-12 col-md-6">
             <div class="rounded p-3 weather-date-left">
                 <div class="d-flex flex-wrap">
                     <div class="overview-current">
+                        <%String status = weather.getStatus();
+                        switch (status) {
+                            case "Mưa nhẹ":
+                        %>
                         <img src="https://file.thoitiet.edu.vn/thoitietedu/icons/10d@2x.png" alt="Mưa nhẹ">
-
+                        <% break;
+                            case "Mây cụm":
+                        %>
+                        <img src="https://file.thoitiet.edu.vn/thoitietedu/icons/04d@2x.png" alt="Mây cụm">
+                        <%break;
+                            case "Bầu trời quang đãng":
+                        %>
+                        <img src="https://file.thoitiet.edu.vn/thoitietedu/icons/01n@2x.png" alt="Nắng">
+                        <%break;
+                            case "Mây thưa":
+                        %>
+                        <img src="https://file.thoitiet.edu.vn/thoitietedu/icons/02n@2x.png" alt="Mây thưa">
+                        <% break;
+                            case "Mây đen u ám":
+                        %>
+                        <img src="https://file.thoitiet.edu.vn/thoitietedu/icons/04d@2x.png" alt="Mây đen u ám">
+                        <%break;
+                            default:
+                        %>
+                        <img src="https://file.thoitiet.edu.vn/thoitietedu/icons/02d@2x.png" alt="Mây">
+                        <%}%>
                     </div>
                     <div class="overview-caption mx-3">
                         <p class="overview-caption-item overview-caption-item-detail">
-                            Mưa nhẹ
+                            <%=status%>
                         </p>
                         <span class="current-temperature">
-                                27°
+                                <%=weather.getAverage_temp()%>°
                             </span>
                     </div>
                 </div>
@@ -53,7 +89,7 @@
                                     Thấp/Cao
                                 </span>
                         </div>
-                        <span class="">23°/27°</span>
+                        <span class=""><%=weather.getLow()%>°/<%=weather.getHigh()%>°</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-start">
                         <div class="d-flex ms-2 me-auto">
@@ -66,7 +102,7 @@
                                     Độ ẩm
                                 </span>
                         </div>
-                        <span class="">78 %</span>
+                        <span class=""><%=weather.getHumidity()%>%</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-start">
                         <div class="d-flex ms-2 me-auto">
@@ -79,7 +115,7 @@
                                     Lượng mưa
                                 </span>
                         </div>
-                        <span class="">0.47 mm</span>
+                        <span class=""><%=weather.getPrecipitation()%> mm</span>
                     </li>
                 </ul>
             </div>
@@ -110,7 +146,7 @@
                                 Ngày/Đêm
                             </span>
                     </div>
-                    <span class="">27°/23°</span>
+                    <span class=""><%=weather.getDay()%>°/<%=weather.getNight()%>°</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-start">
                     <div class="d-flex ms-2 me-auto">
@@ -123,7 +159,7 @@
                                 Sáng/Tối
                             </span>
                     </div>
-                    <span class="">23°/24°</span>
+                    <span class=""><%=weather.getMorning()%>°/<%=weather.getEvening()%>°</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-start">
                     <div class="d-flex ms-2 me-auto">
@@ -136,7 +172,7 @@
                                 Áp suất
                             </span>
                     </div>
-                    <span class="">759.81 mmhg</span>
+                    <span class=""><%=weather.getPressure()%> mmhg</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-start">
                     <div class="d-flex ms-2 me-auto">
@@ -150,7 +186,7 @@
                             </span>
                     </div>
                     <span class="">
-                            8.64 km/h
+                            <%=weather.getWind()%> km/h
                         </span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-start">
@@ -166,10 +202,10 @@
                     </div>
                     <div class="d-flex ml-auto align-items-center">
                         <div class="weather-sun">
-                            <span><i class="bi bi-sunrise"></i>06:23 AM</span>
+                            <span><i class="bi bi-sunrise"></i><%=weather.getSunrise()%> AM</span>
                             <span>
                                     <i class="bi bi-sunset"></i>
-                                    05:15 PM
+                                    <%=weather.getSunset()%> PM
                                 </span>
                         </div>
                     </div>
@@ -177,7 +213,8 @@
             </ul>
         </div>
     </div>
-</div> <br>
+</div>
+<%}}%>
 
 </body>
 </html>
