@@ -118,7 +118,7 @@ BEGIN
         warehouse.`aggregate` ag
             JOIN `datamart`.location_mart lm ON lm.`dim_name` = ag.`location`
             LEFT JOIN `datamart`.home_weather_mart hwm2 ON lm.location_name = hwm2.location
-    WHERE  hwm2.id IS NULL;
+    WHERE  hwm2.id IS NULL AND ag.date >= DATE(NOW());
 END//
 DELIMITER ;
 
@@ -173,7 +173,7 @@ BEGIN
             JOIN `datamart`.location_mart lm ON lm.`dim_name` = ag.`location`
             LEFT JOIN `datamart`.location_weather_mart lwm2 ON lm.location_name = lwm2.location
     WHERE
-        lwm2.id IS NULL;
+        lwm2.id IS NULL AND ag.date >= DATE(NOW());
 END//
 DELIMITER ;
 
