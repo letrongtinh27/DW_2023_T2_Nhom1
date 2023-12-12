@@ -109,7 +109,7 @@ public class Crawl {
     public void saveToFile(weatherForecast WeatherForecast) throws IOException {
         try {
             LocalDate currentDate = LocalDate.now();
-            String excelFilePath = location + currentDate +  format;
+            String excelFilePath = location + name +  currentDate +  format;
 
             Workbook workbook = getWorkbook(excelFilePath);
             Sheet sheet = workbook.getSheetAt(0);
