@@ -20,7 +20,7 @@ public class Load {
             DatabaseConn dbc = new DatabaseConn();
             dbc.connectToControl();
             if(dbc.getControlConn() == null) {
-                SendMail.sendEmail(currentEmail, cnError + currentDate, "Cannot connected to Control");
+                SendMail.sendEmail(currentEmail, cnError + currentDate, "Cannot connected to Control", null);
                 return;
             }
             String selectConfig = dbc.readQueryFromFile("document/query.sql", "-- #QUERY_SELECT_CONFIG");
@@ -36,7 +36,7 @@ public class Load {
                 if(staging==null) {
                     dbc.log(id, "Log of load", "LOAD ERROR", "Cannot connect to staging", "load_script");
                     dbc.updateStatusConfig("LOAD_WAREHOUSE_ERROR", id);
-                    SendMail.sendEmail(currentEmail, cnError + currentDate, "Cannot connected to Staging");
+                    SendMail.sendEmail(currentEmail, cnError + currentDate, "Cannot connected to Staging", null);
                     continue;
                 }
                 // Kết nối tới warehouse.db
@@ -45,7 +45,7 @@ public class Load {
                 if(warehouse==null) {
                     dbc.log(id, "Log of load", "LOAD ERROR", "Cannot connect to warehouse", "load_script");
                     dbc.updateStatusConfig("LOAD_WAREHOUSE_ERROR", id);
-                    SendMail.sendEmail(currentEmail, cnError + currentDate, "Cannot connected to Warehouse");
+                    SendMail.sendEmail(currentEmail, cnError + currentDate, "Cannot connected to Warehouse", null);
                     continue;
                 }
                 // Câp nhật status trong config=LOAD_WAREHOUSE_START
@@ -57,19 +57,19 @@ public class Load {
                 } catch (SQLException e) {
                     dbc.updateStatusConfig("LOAD_WAREHOUSE_ERROR", id);
                     dbc.log(id, "Log of load", "LOAD ERROR", "Cannot call PROCEDURE LoadStagingToWarehouse in staging " + e.getMessage(), "load_script");
-                    SendMail.sendEmail(currentEmail, executeError + currentDate, "Cannot call PROCEDURE LoadStagingToWarehouse in staging " + e.getMessage());
+                    SendMail.sendEmail(currentEmail, executeError + currentDate, "Cannot call PROCEDURE LoadStagingToWarehouse in staging " + e.getMessage(), null);
                     continue;
                 }
                 // Câp nhật status trong config=LOAD_WAREHOUSE_COMPLETED
                 dbc.updateStatusConfig("LOAD_WAREHOUSE_COMPLETED", id);
                 dbc.log(id, "Log of load", "LOAD WAREHOUSE COMPLETED", "Load staging to warehouse done!", "Load_script");
-                SendMail.sendEmail(currentEmail, "LOAD STAGING TO WAREHOUSE COMPLETED! " + currentDate, "Load done in config_id: " + config.get("id").toString());
+//                SendMail.sendEmail(currentEmail, "LOAD STAGING TO WAREHOUSE COMPLETED! " + currentDate, "Load done in config_id: " + config.get("id").toString());
             }
             dbc.closeControl();
             dbc.closeStaging();
             dbc.closeWarehouse();
         } catch (Exception e) {
-            SendMail.sendEmail(currentEmail, executeError + currentDate, new RuntimeException(e).toString());
+            SendMail.sendEmail(currentEmail, executeError + currentDate, new RuntimeException(e).toString(), null);
         }
     }
 
@@ -84,7 +84,7 @@ public class Load {
             dbc.connectToControl();
 
             if(dbc.getControlConn() == null) {
-                SendMail.sendEmail(currentEmail, cnError + currentDate, "Cannot connected to Control");
+                SendMail.sendEmail(currentEmail, cnError + currentDate, "Cannot connected to Control", null);
                 return;
             }
             String selectConfig = dbc.readQueryFromFile("document/query.sql", "-- #QUERY_SELECT_CONFIG");
@@ -100,7 +100,7 @@ public class Load {
                 if(warehouse==null) {
                     dbc.updateStatusConfig("LOAD_AGGREGATE_ERROR", id);
                     dbc.log(id, "Log of load", "LOAD ERROR", "Cannot connect to warehouse", "load_script");
-                    SendMail.sendEmail(currentEmail, cnError + currentDate, "Cannot connected to Warehouse");
+                    SendMail.sendEmail(currentEmail, cnError + currentDate, "Cannot connected to Warehouse", null);
                     continue;
                 }
                 // Câp nhật status trong config=LOAD_AGGREGATE_START
@@ -113,19 +113,19 @@ public class Load {
                     System.out.println("LOAD_AGGREGATE_ERROR");
 
                     dbc.log(id, "Log of load", "LOAD ERROR", "Cannot call PROCEDURE LoadFactToAggregate in warehouse", "load_script");
-                    SendMail.sendEmail(currentEmail, executeError + currentDate, "Cannot call PROCEDURE LoadFactToAggregate in warehouse" + "\n Exception: " + e.getMessage());
+                    SendMail.sendEmail(currentEmail, executeError + currentDate, "Cannot call PROCEDURE LoadFactToAggregate in warehouse" + "\n Exception: " + e.getMessage(), null);
                     continue;
                 }
                 // Câp nhật status trong config=LOAD_AGGREGATE_COMPLETED
                 dbc.updateStatusConfig("LOAD_AGGREGATE_COMPLETED", id);
                 dbc.log(id, "Log of load", "LOAD AGGREGATE COMPLETE", "Load warehouse to aggregate done!", "Load_script");
-                SendMail.sendEmail(currentEmail, "LOAD WAREHOUSE TO AGGREGATE COMPLETED! " + currentDate, "Load done in config_id: " + config.get("id").toString());
+//                SendMail.sendEmail(currentEmail, "LOAD WAREHOUSE TO AGGREGATE COMPLETED! " + currentDate, "Load done in config_id: " + config.get("id").toString());
             }
             // Đóng kết nối
             dbc.closeControl();
             dbc.closeWarehouse();
         } catch (Exception e) {
-            SendMail.sendEmail(currentEmail, executeError + currentDate, new RuntimeException(e).toString());
+            SendMail.sendEmail(currentEmail, executeError + currentDate, new RuntimeException(e).toString(), null);
         }
     }
     public void loadAggregateToDatamart() {
@@ -139,7 +139,7 @@ public class Load {
             databaseConn.connectToControl();
             Connection control = databaseConn.getControlConn();
             if(control==null) {
-                SendMail.sendEmail(currentEmail, cnError + currentDate, "Cannot connected to Control");
+                SendMail.sendEmail(currentEmail, cnError + currentDate, "Cannot connected to Control", null);
                 return;
             }
             String selectConfig = databaseConn.readQueryFromFile("document/query.sql", "-- #QUERY_SELECT_CONFIG");
@@ -158,14 +158,14 @@ public class Load {
                 if(warehouse==null) {
                     databaseConn.updateStatusConfig("LOAD_DATAMART_ERROR", id);
                     databaseConn.log(id, "Log of load", "LOAD ERROR", "Cannot connect to warehouse", "load_script");
-                    SendMail.sendEmail(currentEmail, cnError + currentDate, "Cannot connected to Warehouse");
+                    SendMail.sendEmail(currentEmail, cnError + currentDate, "Cannot connected to Warehouse", null);
                     continue;
                 }
                 // Kết nối datamart
                 if(datamart==null) {
                     databaseConn.updateStatusConfig("LOAD_DATAMART_ERROR", id);
                     databaseConn.log(id, "Log of load", "LOAD ERROR", "Cannot connect to datamart", "load_script");
-                    SendMail.sendEmail(currentEmail, cnError + currentDate, "Cannot connected to Datamart");
+                    SendMail.sendEmail(currentEmail, cnError + currentDate, "Cannot connected to Datamart", null);
                     continue;
                 }
                 // Cập nhật status=LOAD_DATAMART_START
@@ -176,7 +176,7 @@ public class Load {
                 } catch (Exception e) {
                     databaseConn.updateStatusConfig("LOAD_DATAMART_ERROR", id);
                     databaseConn.log(id, "Log of load", "LOAD ERROR", "Cannot call PROCEDURE LoadAggregateToHomeWeatherMart in datamart", "load_script");
-                    SendMail.sendEmail(currentEmail, executeError + currentDate, "Cannot call PROCEDURE LoadAggregateToHomeWeatherMart in datamart" + "\n Exception: " + e.getMessage());
+                    SendMail.sendEmail(currentEmail, executeError + currentDate, "Cannot call PROCEDURE LoadAggregateToHomeWeatherMart in datamart" + "\n Exception: " + e.getMessage(), null);
                     continue;
                 }
                 try {
@@ -185,16 +185,16 @@ public class Load {
                 } catch (Exception e) {
                     databaseConn.updateStatusConfig("LOAD_DATAMART_ERROR", id);
                     databaseConn.log(id, "Log of load", "LOAD ERROR", "Cannot call PROCEDURE LoadAggregateToLocationWeatherMart in datamart", "load_script");
-                    SendMail.sendEmail(currentEmail, executeError + currentDate, "Cannot call PROCEDURE LoadAggregateToLocationWeatherMart in datamart" + "\n Exception: " + e.getMessage());
+                    SendMail.sendEmail(currentEmail, executeError + currentDate, "Cannot call PROCEDURE LoadAggregateToLocationWeatherMart in datamart" + "\n Exception: " + e.getMessage(), null);
                     continue;
                 }
                 databaseConn.updateStatusConfig("REPAIRED", id);
                 databaseConn.log(id, "Log of load", "LOAD DATAMART COMPLETE", "Load aggregate to datamart done!", "Load_script");
-                SendMail.sendEmail(currentEmail, "LOAD AGGREGATE TO DATAMART COMPLETED! " + currentDate, "Load done in config_id: " + config.get("id").toString());
+                SendMail.sendEmail(currentEmail, "WAREHOUSE COMPLETED! " + currentDate, "Warehouse ETL done in config_id: " + config.get("id").toString(), null);
             }
 
         } catch (Exception e) {
-            SendMail.sendEmail(currentEmail, executeError + currentDate, new RuntimeException(e).toString());
+            SendMail.sendEmail(currentEmail, executeError + currentDate, new RuntimeException(e).toString(), null);
         }
     }
 

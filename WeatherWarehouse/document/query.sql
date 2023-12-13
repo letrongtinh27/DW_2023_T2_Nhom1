@@ -61,19 +61,22 @@ FROM information_schema.tables
 WHERE table_schema = 'warehouse' AND table_name = 'weather_fact';
 
 -- #QUERY_EXPORT_DATA_OLD
-SELECT *
-INTO OUTFILE ?
+SELECT
+    wd.id, wd.location_id, wd.date_id, wd.status_id, wd.low, wd.high, wd.humidity, wd.precipitation, wd.average_temp,
+    wd.`day`, wd.night, wd.morning, wd.evening, wd.pressure, wd.wind, wd.sunrise, wd.sunset
+INTO OUTFILE 'C:\\Users\\tinh\\Desktop\\test1.csv'
     FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '\"'
     LINES TERMINATED BY '\n'
 FROM warehouse.weather_fact AS wd
-         INNER JOIN warehouse.date_dim AS dd ON wd.date_id = dd.id
-WHERE dd.full_date < ?;
+         INNER JOIN warehouse.date_dim AS dd ON wd.expiration_date = dd.id
+WHERE dd.full_date < DATE(NOW());
+
 
 -- #QUERY_DELETE_DATA_OLD
 DELETE wd
 FROM warehouse.weather_fact wd
-         INNER JOIN warehouse.date_dim dd ON dd.id = wd.date_id
-WHERE dd.full_date < ?;
+         INNER JOIN warehouse.date_dim dd ON dd.id = wd.expiration_date
+WHERE dd.full_date < DATE(NOW());
 
 -- #CALL_TRANSFORM
 CALL staging.Transform();

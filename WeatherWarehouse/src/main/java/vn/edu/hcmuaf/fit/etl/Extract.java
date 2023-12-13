@@ -36,7 +36,7 @@ public class Extract {
                 Connection control  = connection.getControlConn();
                 // Không kết nối được thì gửi mail
                 if(control == null) {
-                    SendMail.sendEmail(currentEmail,cnError + currentDate ,"Can not connect ControlDB");
+                    SendMail.sendEmail(currentEmail,cnError + currentDate ,"Can not connect ControlDB", null);
                     return;
                 }
                 // lấy ra config theo status crawled
@@ -57,7 +57,7 @@ public class Extract {
                     if(staging == null) {
                         // Gửi mail và báo lỗi vào Log
                         connection.updateStatusConfig("EXTRACT_ERROR",id);
-                        SendMail.sendEmail(currentEmail,cnError + currentDate ,"Can not connect Staging DB");
+                        SendMail.sendEmail(currentEmail,cnError + currentDate ,"Can not connect Staging DB", null);
                         connection.log(id, "Log of Extract", "EXTRACT_ERROR", "Cannot connect Staging db", "extract_script");
                         continue;
                     }
@@ -102,13 +102,13 @@ public class Extract {
                         // Gặp lỗi cập nhật status
                         connection.updateStatusConfig("EXTRACT_ERROR",id);
                         connection.log(id, "Log of extract", "EXTRACT_ERROR", "Cannot extract data " + e.getMessage(),"extract_script");
-                        SendMail.sendEmail(currentEmail,extractError + currentDate ,"Cannot extract data " + e.getMessage());
+                        SendMail.sendEmail(currentEmail,extractError + currentDate ,"Cannot extract data " + e.getMessage(), null);
 
                         continue;
                     }
                     connection.updateStatusConfig("EXTRACT_COMPLETED",id);
                     connection.log(id, "Log of extract", "EXTRACT_COMPLETED", "EXTRACT COMPLETED!","extract_script");
-                    SendMail.sendEmail(currentEmail,"Extract Complete!" + currentDate ,"Extract done! ");
+//                    SendMail.sendEmail(currentEmail,"Extract Complete!" + currentDate ,"Extract done! ");
                     file.deleteOnExit();
                     connection.closeStaging();
 

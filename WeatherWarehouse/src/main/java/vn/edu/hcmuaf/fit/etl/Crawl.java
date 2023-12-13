@@ -50,7 +50,7 @@ public class Crawl {
 
         // K kết nối được thì gửi mail
         if(control == null) {
-            SendMail.sendEmail(currentEmail,cnError +  currentDate,"Can not connect ControlDB");
+            SendMail.sendEmail(currentEmail,cnError +  currentDate,"Can not connect ControlDB", null);
             return;
         }
 
@@ -91,13 +91,13 @@ public class Crawl {
                     // Gặp lỗi cập nhật status
                     connection.updateStatusConfig("CRAWL_ERROR",id);
                     connection.log(id, "Log of crawler","CRAWL_ERROR" ,"Cannot crawl data by source_path " + e.getMessage(),"Crawler");
-                    SendMail.sendEmail(currentEmail, crawlError + currentDate, "Cannot crawl data by source_path " + "\n Exception: " + e.getMessage());
+                    SendMail.sendEmail(currentEmail, crawlError + currentDate, "Cannot crawl data by source_path " + "\n Exception: " + e.getMessage(), null);
                     return;
                 }
             }
             connection.updateStatusConfig("CRAWL_COMPLETED",id);
             connection.log(id, "Log of crawler","CRAWL_COMPLETED" ,"Crawl complete","Crawler");
-            SendMail.sendEmail(currentEmail, "CRAWLED COMPLETED! " + currentDate, "Crawler done!" +currentDate);
+//            SendMail.sendEmail(currentEmail, "CRAWLED COMPLETED! " + currentDate, "Crawler done!" +currentDate);
         }
 
 
