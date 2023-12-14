@@ -64,7 +64,8 @@ public class Extract {
 
                     String locationFile = config.get("location").toString();
                     String format = config.get("format").toString();
-                    File file = new File(locationFile + currentDate + format);
+                    String name = config.get("name").toString();
+                    File file = new File(locationFile+ name + currentDate + format);
                     try (FileInputStream excelFile = new FileInputStream(file);
                          Workbook workbook = new XSSFWorkbook(excelFile)) {
 
