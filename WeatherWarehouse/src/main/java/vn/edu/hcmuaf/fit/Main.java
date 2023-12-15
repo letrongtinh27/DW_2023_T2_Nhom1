@@ -33,6 +33,7 @@ public class Main {
             showStatusFrame(run);
 
         } catch (Exception e) {
+            SendMail.sendEmail("tinhle2772002@gmail.com", "Warehouse Error!", "Lỗi: " + e, null);
             throw new RuntimeException(e);
         }
     }
