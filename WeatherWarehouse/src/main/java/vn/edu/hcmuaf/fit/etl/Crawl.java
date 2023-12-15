@@ -56,7 +56,7 @@ public class Crawl {
 
         String getConfig = connection.readQueryFromFile("document/query.sql", "-- #QUERY_SELECT_CONFIG");
         // Lấy dữ liệu config có flag = 1 và status = repair
-        getConfig = getConfig.replace("?", "'REPAIRED'");
+        getConfig = getConfig.replace("?", "'PREPARED'");
 
 
         List<Map<String, Object>> listConfig = connection.query(getConfig);

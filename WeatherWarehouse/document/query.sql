@@ -69,14 +69,14 @@ INTO OUTFILE ?
     LINES TERMINATED BY '\n'
 FROM warehouse.weather_fact AS wd
          INNER JOIN warehouse.date_dim AS dd ON wd.expiration_date = dd.id
-WHERE dd.full_date < ?;
+WHERE dd.full_date < DATE(?);
 
 
 -- #QUERY_DELETE_DATA_OLD
 DELETE wd
 FROM warehouse.weather_fact wd
          INNER JOIN warehouse.date_dim dd ON dd.id = wd.expiration_date
-WHERE dd.full_date < ?;
+WHERE dd.full_date < DATE(?);
 
 -- #CALL_TRANSFORM
 CALL staging.Transform();
