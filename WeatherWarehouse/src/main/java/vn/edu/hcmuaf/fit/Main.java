@@ -40,7 +40,7 @@ public class Main {
 
     private static void checkSizeTable(DatabaseConn databaseConn) throws SQLException {
         double sizeTable = databaseConn.getTableSize();
-        double thresholdSize = 0.2;
+        double thresholdSize = 0.1;
         if (sizeTable > thresholdSize) {
             LocalDate fiveMonthAgo = LocalDate.now();
             String currentDate = LocalDate.now().toString();

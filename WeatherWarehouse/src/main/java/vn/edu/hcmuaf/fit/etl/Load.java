@@ -142,7 +142,7 @@ public class Load {
                 SendMail.sendEmail(currentEmail, cnError + currentDate, "Cannot connected to Control", null);
                 return;
             }
-            String selectConfig = databaseConn.readQueryFromFile("document/query.sql", "-- #QUERY_SELECT_CONFIG");
+            String selectConfig = databaseConn.readQueryFromFile("                                          ", "-- #QUERY_SELECT_CONFIG");
             selectConfig = selectConfig.replace("?" , "'LOAD_AGGREGATE_COMPLETED'");
             List<Map<String, Object>> configs = databaseConn.query(selectConfig);
 
@@ -188,7 +188,7 @@ public class Load {
                     SendMail.sendEmail(currentEmail, executeError + currentDate, "Cannot call PROCEDURE LoadAggregateToLocationWeatherMart in datamart" + "\n Exception: " + e.getMessage(), null);
                     continue;
                 }
-                databaseConn.updateStatusConfig("REPAIRED", id);
+                databaseConn.updateStatusConfig("PREPARED", id);
                 databaseConn.log(id, "Log of load", "LOAD DATAMART COMPLETE", "Load aggregate to datamart done!", "Load_script");
                 SendMail.sendEmail(currentEmail, "WAREHOUSE COMPLETED! " + currentDate, "Warehouse ETL done in config_id: " + config.get("id").toString(), null);
             }
