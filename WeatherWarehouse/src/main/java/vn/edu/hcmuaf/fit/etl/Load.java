@@ -142,7 +142,7 @@ public class Load {
                 SendMail.sendEmail(currentEmail, cnError + currentDate, "Cannot connected to Control", null);
                 return;
             }
-            String selectConfig = databaseConn.readQueryFromFile("                                          ", "-- #QUERY_SELECT_CONFIG");
+            String selectConfig = databaseConn.readQueryFromFile("document/query.sql", "-- #QUERY_SELECT_CONFIG");
             selectConfig = selectConfig.replace("?" , "'LOAD_AGGREGATE_COMPLETED'");
             List<Map<String, Object>> configs = databaseConn.query(selectConfig);
 
