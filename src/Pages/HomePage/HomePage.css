@@ -1,0 +1,145 @@
+.wrapper_home{
+    background-color: #206CDF;
+    position: relative;
+}
+.weather_home
+{
+    background-color: #206CDF;
+    color: #fff;
+    padding-bottom: 24px;
+}
+.title_weather
+{
+    padding: 24px 0 6px;
+}
+.package
+{
+    margin-left: 12px;
+}
+.dubao_tinh{
+    background-color: #2283DD;
+    padding: 12px 24px;
+    border-radius: 15px;
+    overflow: hidden;
+}
+.row_dubao{
+    width: 100%;
+    margin: 0 auto;
+}
+.btn_bao
+{
+    width: fit-content;
+    display: flex;
+    align-items: center;
+    height: 43px;
+    font-size: 12px;
+    border: 1px solid #6272CB;
+    margin-bottom: 8px;
+    color: #fff;
+    box-shadow: 2px 2px 6px -2px #000
+}
+.btn_bao:hover{
+    border: 1px solid #3692e9;
+}
+.title_dubaotong_span
+{
+    margin-left: 10px;
+}
+.package_home
+{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+}
+.icon
+{
+    width: 17px;
+    height: 17px;
+}
+.column
+{
+    width: 146px;
+    height: 163px;
+    border: 1px solid #2283DD;
+    box-shadow: 2px 2px 6px -2px #F5F5F5;
+    border-radius: 20px;
+    padding: 12px;
+    margin: 0 12px 36px;
+    text-align: center;
+    flex-wrap: wrap;
+}
+.title_tinh
+{
+    margin-bottom: 6px;
+}
+.phantramdoam{
+    font-size: 14px;
+}
+
+.new_home{
+    position: relative;
+    background-color: #fff;
+    margin: 0 auto;
+}
+.content_chinh{
+    border: 1px solid #eeeeee;
+    box-shadow: 1px 1px 4px -2px;
+    padding: 12px 6px;
+    margin-bottom: 40px;
+}
+.package_content
+{
+    width: 498px;
+    padding:6px;
+    border: 1px solid #000;
+    box-shadow: 2px 2px 5px -2px;
+}
+.content_chinh .package_content p
+{
+    margin: 0;
+}
+.des_content{
+    padding: 0 6px;
+}
+.des_content p {
+    margin: 16px 0;
+    font-size: 12px;
+}
+.des_content a {
+    text-decoration: none;
+}
+.wrapper_new
+{
+    border: 1px solid #ccc;
+    position: relative;
+    margin: 0;
+    top: -30px;
+    margin:0 auto;
+    box-shadow: 1px 1px 4px -2px;
+}
+.conten_new{
+
+    padding: 12px 0;
+}
+.title_new
+{
+    background-color: #2B3CDA;
+    padding: 2px 6px;
+    width: fit-content;
+    color: #fff;
+    margin-bottom: 10px;
+}
+.title_new:hover{
+    cursor: pointer;
+}
+.title_new p{
+    margin: 0;
+}
+.des_new
+{
+    width: 80%;
+}
+.des_new p{
+    padding: 8px 0;
+    margin: 0;
+}
