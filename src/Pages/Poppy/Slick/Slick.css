@@ -1,0 +1,25 @@
+.custom-next-arrow
+{
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: 30%;
+    transform: translate(-50%);
+    right: -10px;
+    z-index: 100;
+    padding: 6px;
+}
+.custom-prev-arrow{
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: 30%;
+    transform: translate(-50%);
+    left: 5px;
+    padding: 6px;
+    z-index: 100;
+}
+.slick-dots
+{
+    display: none !important;
+}
